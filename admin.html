@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0755c9"><title>All Print | Admin Panel</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f6fb;color:#172033}
+.toolView{display:none;position:fixed;inset:0;z-index:1000;background:#f3f6fb;color:#172033;flex-direction:column}
+.toolView.show{display:flex}
+.toolBar{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(110deg,#0642ad,#0874e8);color:#fff;box-shadow:0 3px 12px #001c4930}
+.toolBar button{border:0;border-radius:9px;background:#fff;color:#0755c9;font-weight:700;padding:9px 14px;cursor:pointer;font-size:14px}
+</style><style>
+/* ===== Subscription: gate ===== */
+#apGate{display:none;position:fixed;inset:0;z-index:2500;overflow:auto;background:linear-gradient(160deg,#5aa9ff 0%,#2fc2ff 45%,#00efff 100%);color:#172033;font-family:Arial,Helvetica,sans-serif}
+#apGate.show{display:block}
+#apGate .gWrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:18px}
+.gCard{width:min(440px,100%);background:#f5fbff;border-radius:18px;overflow:hidden;box-shadow:0 12px 36px #00306a40}
+.gHead{background:#0556c4;color:#fff;text-align:center;padding:22px 16px 18px}
+.gT{font-size:24px;font-weight:700}.gS{font-size:13px;font-style:italic;margin-top:4px;opacity:.95}
+.gBody{padding:18px 22px 22px}
+.gBody label{display:block;font-size:15px;margin:14px 0 7px;color:#1a2233}
+.gBody input[type=text],.gBody input[type=password],.gBody select{width:100%;padding:14px;border:1px solid #d5e3f2;border-radius:10px;font-size:15px;background:#fff;color:#172033;outline:0}
+.gBody input:focus,.gBody select:focus{border-color:#0556c4;box-shadow:0 0 0 2px #0556c422}
+.gBody input[type=file]{width:100%;font-size:14px;color:#172033}
+.gChk{display:flex;gap:8px;align-items:flex-start;margin:14px 0;font-size:13px;color:#1a2233}.gChk input{margin-top:2px;width:17px;height:17px}.gChk a,.gLinks a{color:#0b4dd0}
+.gBtn{display:block;width:100%;text-align:center;border:0;border-radius:10px;background:#0b5fd9;color:#fff;font-size:16px;font-weight:600;padding:15px;margin-top:12px;cursor:pointer;text-decoration:none}
+.gBtn:disabled{background:#5b97e0;opacity:.75;cursor:not-allowed}.gBtnA{background:#15a34a}
+.gLinks{display:flex;flex-direction:column;gap:9px;align-items:center;margin-top:16px;font-size:14px}
+.gMsg{margin:10px 0 0;padding:0;font-size:13.5px;color:#b91c1c;font-weight:700;line-height:1.45}.gMsg:empty{display:none}.gMsg.ok{color:#15803d}
+.gAmt{text-align:center;margin-top:6px}.gAmt small{display:block;color:#475569;font-size:14px}.gAmt b{font-size:40px;color:#0556c4}
+.gQr{margin:10px auto;max-width:270px;background:#fff;border:1px solid #d5e3f2;border-radius:14px;padding:10px;text-align:center}.gQr img{width:100%;display:block;border-radius:8px}
+.gNoQr{padding:26px 8px;color:#b91c1c;font-weight:700;font-size:14px}
+.gUpi{text-align:center;font-size:14px}.gNote{background:#fff7e0;border:1px solid #fde6a1;border-radius:10px;padding:10px;font-size:13px;line-height:1.5;margin-top:10px;color:#5b4500}
+.gOkTxt{color:#15803d;font-size:13px;font-weight:700;margin-top:6px}
+.gDone{text-align:center;font-size:14px;line-height:1.55}.gId{display:inline-block;margin:6px 0;background:#e0efff;color:#0556c4;font-size:26px;font-weight:700;padding:8px 22px;border-radius:12px}
+.gCred{background:#fff;border:1px dashed #9cc2ee;border-radius:10px;padding:10px;text-align:left}
+.gRow{background:#fff;border:1px solid #d5e3f2;border-radius:10px;padding:10px;margin-top:10px;font-size:14px;line-height:1.5}
+.gTerms{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
+.gTBox{background:#fff;border-radius:14px;padding:18px;width:min(440px,100%);max-height:85vh;overflow:auto}.gTBox h3{margin:0 0 8px;color:#0556c4;font-size:17px}.gTBox pre{white-space:pre-wrap;font:14px/1.6 Arial,sans-serif;margin:0}
+/* ===== Subscription: admin ===== */
+#adminView{z-index:2600!important}
+.sbTop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sbStats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;font-size:11px;color:#475569}.sbStats div{background:#eef4ff;border-radius:10px;padding:8px 2px}.sbStats b{display:block;font-size:20px;color:#0755c9}
+.admBadge.sbRed{background:#fee2e2;color:#b91c1c}.admBadge.sbAmb{background:#fef3c7;color:#92400e}.admBadge.sbDark{background:#1e293b;color:#fff}
+.sbShot{width:100%;max-height:170px;object-fit:contain;background:#f1f5f9;border-radius:10px;margin-top:8px;cursor:zoom-in}
+.sbPlan{display:flex;gap:12px;align-items:center;margin-top:8px}
+.sbQrBox{width:96px;height:96px;flex:none;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8;overflow:hidden}.sbQrBox img{width:100%;height:100%;object-fit:contain}.sbQrBox.big{width:180px;height:180px;margin-top:10px}
+.sbChips button{padding:8px 11px}
+.admContent textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:#172033;background:#fff}
+.admContent input[type=date]{padding:10px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;background:#fff;color:#172033;width:100%}
+.sbModal{position:fixed;inset:0;z-index:2800;background:#0009;display:flex;align-items:flex-start;justify-content:center;padding:14px;overflow:auto}
+.sbBox{position:relative;background:#fff;color:#172033;border-radius:16px;padding:16px;width:min(480px,100%);margin:auto;font-size:15px}
+.sbBox h3{margin:0 40px 8px 0;font-size:18px;color:#0755c9}.sbX{position:absolute;right:10px;top:10px;border:0;border-radius:8px;background:#e2e8f0;width:34px;height:34px;font-size:16px;cursor:pointer}
+.sbBox label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:#334155}
+.sbBox input[type=text],.sbBox input[type=date],.sbBox select,.sbBox textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;background:#fff;color:#172033}
+.sbBox input[type=file]{width:100%;font-size:14px}
+.sbBox .admRow button,.sbBox .admBtn{border:0;border-radius:9px;background:#e2e8f0;color:#0755c9;font-weight:700;padding:10px 12px;cursor:pointer;font-size:14px}
+.sbBox .admBtn.go,.sbBox .admRow .go{background:#0755c9;color:#fff}.sbBox .admBtn.danger{background:#dc2626;color:#fff}
+.sbBox .admHint{font-size:13px;line-height:1.5;color:#475569;margin:6px 0}
+.sbSec{border-top:1px solid #e2e8f0;margin-top:12px;padding-top:10px}
+.sbGrid{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px;align-items:center}.sbGrid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sbPlus{background:#dcfce7!important;color:#166534!important}.sbMinus{background:#fee2e2!important;color:#b91c1c!important}
+.sbLog{font-size:12px;color:#475569;line-height:1.7;max-height:150px;overflow:auto}
+.sbPre{white-space:pre-wrap;background:#f1f5f9;border-radius:10px;padding:10px;font:13px/1.5 Arial,sans-serif;margin:8px 0}
+.sbDev{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#f1f5f9;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:14px}.sbDev small{color:#64748b}
+.sbBox .sbPre{margin:8px 0}
+
+/* ===== Main app: fixed compact header + user bar ===== */
+#apFixed{position:sticky;top:0;z-index:60}
+#apFixed .top{min-height:0;padding:12px 56px 14px;border-radius:0 0 24px 24px}
+#apFixed .tag{display:none}
+#apFixed .brandline{font-size:30px;letter-spacing:-1px}
+#apFixed .menuBtn{top:50%;transform:translateY(-50%);left:10px;font-size:32px}
+#apFixed .top:after{height:56px;bottom:-38px}
+#apBar{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#0c3d91;color:#fff;padding:10px 14px;font-size:14px;line-height:1.55}
+#apBar.warn{background:#9a4a06}
+#apBar b{font-weight:800}
+#apBar .apR{display:flex;gap:6px;flex:none}
+#apBar button{border:0;border-radius:10px;background:#fff;color:#0b4dd0;font-weight:700;padding:9px 13px;cursor:pointer;font-size:14px}
+/* side drawer */
+.drawer{display:block!important;position:fixed;top:0;left:0;bottom:0;width:min(84vw,330px);z-index:1900;transform:translateX(-105%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;background:#fff;padding:0;overflow-y:auto;box-shadow:8px 0 28px #00000045;border-radius:0 18px 18px 0}
+.drawer.open{transform:none;visibility:visible;transition:transform .25s ease}
+#apBg{display:none;position:fixed;inset:0;z-index:1800;background:#0008}
+.drawer.open+#apBg{display:block}
+.dHead{background:linear-gradient(120deg,#0642ad,#0874e8);color:#fff;padding:26px 18px 18px}
+.dBrand{font-size:28px;font-weight:800}.dBrand .y{color:#ffc526}
+.dUser{margin-top:12px;font-size:16px;font-weight:700;line-height:1.5}.dUser small{font-weight:400;opacity:.9;font-size:13px}
+.dI{display:flex;align-items:center;gap:14px;width:100%;border:0;border-bottom:1px solid #e8eef8;background:#fff;color:#0b3a8e;font-size:16px;font-weight:700;padding:15px 18px;text-align:left;cursor:pointer}
+.dI span{font-size:21px;width:28px;text-align:center;flex:none}.dI:active{background:#eef4ff}
+/* user modals */
+.uModal{position:fixed;inset:0;z-index:2700;background:#0009;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto;font-family:Arial,Helvetica,sans-serif}
+.uBox{position:relative;background:#f5fbff;color:#172033;border-radius:16px;padding:18px;width:min(440px,100%);margin:auto}
+.uBox h3{margin:0 40px 10px 0;color:#0556c4;font-size:19px}
+.uX{position:absolute;right:12px;top:12px;border:0;border-radius:9px;background:#e2e8f0;width:34px;height:34px;font-size:16px;cursor:pointer;color:#172033}
+.uBox label{display:block;font-size:14px;margin:12px 0 6px;color:#1a2233;font-weight:700}
+.uBox input[type=text],.uBox input[type=password],.uBox textarea{width:100%;padding:12px;border:1px solid #d5e3f2;border-radius:10px;font-size:15px;background:#fff;color:#172033;outline:0;font-family:inherit}
+.uBox .gBtn{margin-top:12px}
+.uRow{display:flex;justify-content:space-between;gap:12px;padding:11px 2px;border-bottom:1px solid #e3edf8;font-size:15px}.uRow span{color:#5b6b83}.uRow b{text-align:right;word-break:break-word}
+.uBig{font-size:28px;font-weight:800;color:#0556c4;text-align:center;margin:10px 0 6px;letter-spacing:.5px}
+.uTxt{font-size:14px;line-height:1.55;color:#334155}.uPre{white-space:pre-wrap;font:14px/1.65 Arial,sans-serif;margin:0}
+.uMsg{margin-top:10px;font-size:13.5px;font-weight:700;color:#b91c1c;line-height:1.45}.uMsg:empty{display:none}.uMsg.ok{color:#15803d}
+.uSub{margin:18px 0 4px;font-weight:800;color:#0556c4;font-size:15px}
+.uItem{background:#fff;border:1px solid #d5e3f2;border-radius:10px;padding:10px;margin-top:8px;font-size:14px;line-height:1.5}.uItem small{color:#64748b}.uRep{margin-top:6px;background:#e8f7ee;border-radius:8px;padding:7px 9px;color:#166534}
+.uLang.on{background:#e8f1ff}
+.gGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.gGrid a{background:#fff;border:1px solid #d5e3f2;border-radius:10px;padding:11px 8px;text-align:center;font-size:13px;font-weight:700;text-decoration:none;color:#0b4dd0;line-height:1.35}
+
+.admContent .sbPm,.sbBox .sbPm{display:flex!important;align-items:center;gap:8px;padding:7px 0;font-size:14px!important;font-weight:400!important;margin:0!important;color:#172033}
+.sbPm input{width:18px!important;height:18px;flex:none;margin:0}
+.sbPmSub{margin-left:26px;border-left:2px solid #dbe3ee;padding-left:8px}
+.sbPmBox{max-height:280px;overflow:auto;margin-top:8px;padding:4px 10px;background:#f8fafc;border-radius:10px}
+/* locked service cards + toast (main app) */
+.service.apLock{opacity:.5;filter:grayscale(.65);position:relative}
+.service.apLock:after{content:'🔒';position:absolute;top:12px;right:14px;font-size:24px}
+.apToast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:12px 18px;border-radius:12px;font:600 14px Arial,sans-serif;z-index:3200;max-width:90%;text-align:center;box-shadow:0 6px 20px #0004}
+</style></head><body>
+<div id="drawer" style="display:none"></div>
+<section id="adminView" class="toolView" aria-hidden="true"><div class="toolBar"><button id="admBack" type="button">← Back</button><strong>⚙️ Admin Manager</strong></div><div class="admContent">
+<div id="admGate" class="admCard" hidden><h3 id="admGateTitle">Owner Login</h3><p class="admHint">Owner email fixed hai. Admin panel kholne ke liye password daalein.</p><label for="admEmail">Owner Email</label><input type="text" id="admEmail" value="kchandramohan6205@gmail.com" readonly autocomplete="username" style="background:#f1f5f9;color:#475569"><label for="admPin">Password</label><input type="password" id="admPin" placeholder="Firebase password" autocomplete="current-password"><div id="admGateMsg" class="admHint" style="color:#b91c1c;font-weight:700"></div><div class="admRow"><button type="button" class="go" id="admGateBtn">Login</button></div></div>
+<div id="admMain" hidden><div class="admTabs" id="admTabs"><button type="button" data-tab="sbr">🧾 Requests</button><button type="button" data-tab="sbu">👥 Users</button><button type="button" data-tab="sbm">💬 Messages</button><button type="button" data-tab="sbp">💎 Plans &amp; QR</button><button type="button" data-tab="sbs">⚙️ Sub Settings</button><button type="button" data-tab="mpan">✍️ Manual PAN</button><button type="button" data-tab="crop">✂️ Crop Setup</button><button type="button" data-tab="aad">🪪 Aadhaar Templates</button><button type="button" data-tab="atm">💳 ATM Templates</button><button type="button" data-tab="pub">📦 Publish / Backup</button></div><div id="admBody"></div></div>
+</div></section>
+<style>
+.admContent{padding:14px;overflow:auto;flex:1;background:#f3f6fb;color:#172033;font-size:15px}
+.admCard{background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
+.admCard h3{margin:0 0 8px;font-size:17px;color:#0755c9}
+.admHint{font-size:13px;line-height:1.5;color:#475569;margin:6px 0}
+.admContent label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px;color:#334155}
+.admContent input[type=text],.admContent input[type=password],.admContent select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;background:#fff;color:#172033}
+.admContent input[type=file]{width:100%;font-size:14px}
+.admTabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.admTabs button,.admRow button,.admBtn{border:0;border-radius:9px;background:#e2e8f0;color:#0755c9;font-weight:700;padding:10px 12px;cursor:pointer;font-size:14px;display:inline-block}
+.admTabs button.on,.admRow button.on{background:#0755c9;color:#fff}
+.admRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.admRow .go,.admBtn.go{background:#0755c9;color:#fff}
+.admRow .danger,.admBtn.danger{background:#dc2626;color:#fff}
+.admRow label{display:inline-flex;gap:6px;align-items:center;margin:0}
+.admStage{margin-top:10px;background:#0f172a;border-radius:10px;padding:6px;overflow:hidden}
+.admStage canvas{display:block;width:100%;height:auto;touch-action:none;border-radius:6px;background:#fff}
+.admPrevs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.admPrevs canvas{width:100%;height:auto;border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;display:block}
+.admBadge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.admBadge.ok{background:#dcfce7;color:#166534}.admBadge.df{background:#e2e8f0;color:#475569}
+.admItem{border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-top:10px}
+.admItem .nm{display:flex;gap:6px}.admItem .nm input{flex:1}
+.admThumbs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.admThumbs div{aspect-ratio:85.6/54;background:#eef2f7;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8}
+.admThumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.admToast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#15803d;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:3000;box-shadow:0 6px 20px #0004;max-width:90%;text-align:center}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const AP_FIREBASE_CONFIG={apiKey:'AIzaSyDU8uqPNCren-qZlIy89gsj2w8aLhh3yMk',authDomain:'all-print-card.firebaseapp.com',projectId:'all-print-card',storageBucket:'all-print-card.firebasestorage.app',messagingSenderId:'206572139177',appId:'1:206572139177:web:63a489217cc1dccb366fb8'};
+let apFirebaseAuth=null,apFirestore=null;
+try{if(window.firebase){if(!firebase.apps.length)firebase.initializeApp(AP_FIREBASE_CONFIG);apFirebaseAuth=firebase.auth();apFirestore=firebase.firestore();}}catch(e){console.error('Firebase init failed',e)}
+const AP_SHARED_DOC='publicConfig/main';
+async function apReadShared(){if(!apFirestore)throw new Error('Firebase Firestore load nahi hua');const snap=await apFirestore.doc(AP_SHARED_DOC).get();return snap.exists?(snap.data().data||null):null}
+async function apWriteShared(data){if(!apFirestore)throw new Error('Firebase Firestore load nahi hua');const u=apFirebaseAuth&&apFirebaseAuth.currentUser;if(!u||u.uid!=='ofSt3V2PnDbFSVidk0T8aGpWjot2')throw new Error('Sirf owner account shared template save kar sakta hai');const raw=JSON.stringify(data);if(new Blob([raw]).size>850000)throw new Error('Templates ka data bahut bada hai. Firestore document ko 1 MiB se chhota rakhein.');await apFirestore.doc(AP_SHARED_DOC).set({data:data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
+const pmEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function pmSave(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+/* ===================== ADMIN MANAGER ===================== */
+const A$=id=>document.getElementById(id);
+function admDB(){return new Promise(res=>{try{const r=indexedDB.open('AllPrintAdminDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);r.onblocked=()=>res(null)}catch(e){res(null)}})}
+async function admGet(k){const db=await admDB();if(!db)return null;return new Promise(res=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>{db.close();res(q.result===undefined?null:q.result)};q.onerror=()=>{db.close();res(null)}})}
+async function admSet(k,v){const db=await admDB();if(!db)throw new Error('Is browser me storage available nahi hai');return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}
+async function admDel(k){const db=await admDB();if(!db)return;return new Promise(res=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').delete(k);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();res()}})}
+const admEmpty=()=>({v:1,crops:{},aadhaar:{labels:{},t4:null,list:[]},atm:[],manual:[]});
+function admNorm(d){const e=admEmpty();d=d&&typeof d==='object'?d:{};return{v:1,crops:d.crops||e.crops,aadhaar:Object.assign(e.aadhaar,d.aadhaar||{}),atm:Array.isArray(d.atm)?d.atm:[],manual:Array.isArray(d.manual)?d.manual:[]}}
+window.apAdminData=admEmpty();window.apAdminSource='default';
+/* Shared crop/templates Firestore se sync hote hain; IndexedDB sirf fallback/cache hai. */
+window.apAdminReady=(async()=>{let d=null;try{d=await apReadShared();if(d)window.apAdminSource='firestore'}catch(e){console.warn('Firestore read nahi hua',e)}if(!d){d=await admGet('data');if(d)window.apAdminSource='local'}window.apAdminData=admNorm(d);})();
+async function admSave(){await window.apAdminReady;await admSet('data',window.apAdminData);await apWriteShared(window.apAdminData);window.apAdminSource='firestore'}
+const admId=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function admToast(t,bad){const o=A$('admToast');if(o)o.remove();const d=document.createElement('div');d.id='admToast';d.className='admToast';if(bad)d.style.background='#b91c1c';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)}
+function admSha256(s){const rr=(n,x)=>(x>>>n)|(x<<(32-n));const pr=[];for(let n=2;pr.length<64;n++){let ok=true;for(let d=2;d*d<=n;d++)if(n%d===0){ok=false;break}if(ok)pr.push(n)}
+ const fr=x=>Math.floor((x-Math.floor(x))*4294967296),K=pr.map(p=>fr(Math.cbrt(p)));let h=pr.slice(0,8).map(p=>fr(Math.sqrt(p)));
+ const m=unescape(encodeURIComponent(s)),L=m.length*8,wd=[];for(let i=0;i<m.length;i++)wd[i>>2]|=m.charCodeAt(i)<<(24-(i%4)*8);wd[L>>5]|=0x80<<(24-L%32);wd[(((L+64)>>9)<<4)+15]=L;
+ for(let i=0;i<wd.length;i+=16){const w=new Array(64);let[a,b,c,d,e,f,g,hh]=h;
+  for(let t=0;t<64;t++){if(t<16)w[t]=wd[i+t]|0;else{const s0=rr(7,w[t-15])^rr(18,w[t-15])^(w[t-15]>>>3),s1=rr(17,w[t-2])^rr(19,w[t-2])^(w[t-2]>>>10);w[t]=(w[t-16]+s0+w[t-7]+s1)|0}
+   const S1=rr(6,e)^rr(11,e)^rr(25,e),ch=(e&f)^(~e&g),t1=(hh+S1+ch+K[t]+w[t])|0,S0=rr(2,a)^rr(13,a)^rr(22,a),mj=(a&b)^(a&c)^(b&c),t2=(S0+mj)|0;hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0}
+  h=[h[0]+a|0,h[1]+b|0,h[2]+c|0,h[3]+d|0,h[4]+e|0,h[5]+f|0,h[6]+g|0,h[7]+hh|0]}
+ return h.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('')}
+/* hamesha ek hi tarah ka hash (browser mode se fark nahi padta); purana 'p:' hash bhi accept hota hai */
+const admHash=async s=>admSha256('allprint:'+s);
+const admHashOld=s=>{try{return'p:'+btoa(unescape(encodeURIComponent(s)))}catch(e){return''}};
+async function admPinGet(){let v=null;try{v=localStorage.getItem('ap_admin_pin')}catch(e){}if(v)return v;v=await admGet('pin');if(v){try{localStorage.setItem('ap_admin_pin',v)}catch(e){}}return v}
+async function admPinSet(h){let ok=false;try{localStorage.setItem('ap_admin_pin',h);ok=true}catch(e){}try{await admSet('pin',h);ok=true}catch(e){}if(!ok)throw new Error('Is browser me PIN save nahi ho sakta (storage band hai)')}
+async function admPinClear(){try{localStorage.removeItem('ap_admin_pin')}catch(e){}await admDel('pin')}
+
+/* ---------- open / close / PIN ---------- */
+let admUnlocked=false,admTab='sbr';
+function admGateMsg(t){const e=A$('admGateMsg');if(e)e.textContent=t||''}
+async function openAdmin(){const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open');A$('adminView').classList.add('show');A$('adminView').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+ A$('admMain').hidden=true;A$('admGate').hidden=false;A$('admGateTitle').textContent='Owner Login';A$('admGateBtn').textContent='Login';
+ try{await Promise.race([window.apAdminReady,new Promise(r=>setTimeout(r,2500))])}catch(e){}
+ try{await admGate()}catch(e){admGateMsg('Error: '+(e.message||e))}}
+function closeAdmin(){admDestroyCrop();admUnlocked=false;try{if(apFirebaseAuth)apFirebaseAuth.signOut()}catch(e){}A$('adminView').classList.remove('show');A$('adminView').setAttribute('aria-hidden','true');document.body.style.overflow=''}
+async function admGate(){if(admUnlocked){admShowMain();return}A$('admMain').hidden=true;A$('admGate').hidden=false;A$('admGateTitle').textContent='Owner Login';A$('admGateBtn').textContent='Login';A$('admEmail').value='kchandramohan6205@gmail.com';A$('admPin').value='';admGateMsg('')}
+function admShowMain(){A$('admGate').hidden=true;A$('admMain').hidden=false;admRender()}
+let admGateBusy=false;
+async function admGateGo(){
+ if(admGateBusy)return;
+ admGateBusy=true;
+ const btn=A$('admGateBtn');
+ if(btn)btn.disabled=true;
+ try{
+  const v=A$('admPin').value;
+  admGateMsg('');
+  if(!v){admGateMsg('Password daalein');return}
+  if(!apFirebaseAuth)throw new Error('Firebase load nahi hua. Internet check karein aur file dobara kholein.');
+  const credential=await apFirebaseAuth.signInWithEmailAndPassword('kchandramohan6205@gmail.com',v);
+  if(!credential||!credential.user)throw new Error('Firebase ne login confirm nahi kiya. Email aur password check karein.');
+  if((credential.user.email||'').toLowerCase()!=='kchandramohan6205@gmail.com')throw new Error('Is email ko Owner login ki anumati nahi hai.');
+  admUnlocked=true;
+  try{
+   admShowMain();
+  }catch(renderError){
+   admUnlocked=false;
+   A$('admMain').hidden=true;
+   A$('admGate').hidden=false;
+   admGateMsg('Password sahi hai, lekin Admin Panel kholte waqt error aaya: '+(renderError.message||renderError));
+   console.error('Admin panel render failed',renderError);
+  }
+ }catch(e){
+  const code=e&&e.code;
+  if(code==='auth/invalid-credential'||code==='auth/wrong-password'||code==='auth/user-not-found'||code==='auth/invalid-email')admGateMsg('Password galat hai. Dobara try karein.');
+  else if(code==='auth/too-many-requests')admGateMsg('Bahut baar galat koshish hui. Thodi der baad try karein.');
+  else if(code==='auth/operation-not-allowed')admGateMsg('Firebase Console me Email/Password sign-in enable karein.');
+  else if(code==='auth/network-request-failed')admGateMsg('Internet connection nahi hai ya Firebase se connection nahi ho raha.');
+  else admGateMsg('Login nahi hua: '+(e.message||e));
+  console.error('Admin login failed',e);
+ }finally{
+  admGateBusy=false;
+  if(btn)btn.disabled=false;
+ }
+}
+async function admForgot(e){e.preventDefault();if(!confirm('PIN reset karne par is browser ka saved admin data (crop, templates) bhi hat jayega. Website wali admin-data.json ka data nahi hatega. Reset karein?'))return;try{await admPinClear();await admDel('data')}catch(x){}window.apAdminData=admEmpty();window.apAdminSource='default';admUnlocked=false;admToast('✓ Reset ho gaya. Ab naya PIN set karein.');await admGate()}
+function admRender(){setTimeout(()=>{window.subsBadge&&window.subsBadge()},0);document.querySelectorAll('#admTabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===admTab));admDestroyCrop();({sbr:subsReqTab,sbu:subsUsersTab,sbm:subsMsgTab,sbp:subsPlansTab,sbs:subsSetTab,mpan:admMpanTab,crop:admCropTab,aad:admAadTab,atm:admAtmTab,pub:admPubTab})[admTab]()}
+
+/* ---------- image helpers ---------- */
+function admReadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('Image open nahi hui'))};im.src=u})}
+async function admFit(file,W,H){const im=await admReadImg(file),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);x.imageSmoothingQuality='high';x.drawImage(im,0,0,W,H);return c.toDataURL('image/jpeg',.95)}
+async function admScale(file,maxW){const im=await admReadImg(file),s=Math.min(1,maxW/im.width),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(im,0,0,c.width,c.height);return c.toDataURL(/png|webp|gif/i.test(file.type)?'image/png':'image/jpeg',.92)}
+
+/* ---------- 1) CROP SETUP ---------- */
+const ADM_TOOLS={aadhaar:['Aadhaar (e-Aadhaar PDF)',1],voter:['Voter ID (e-EPIC PDF)',1],pan_uti:['PAN – UTI (e-PAN PDF)',1],pan_nsdl:['PAN – NSDL (e-PAN PDF)',1],ayushman:['Ayushman Card (PDF / Photo)',1],apaar:['APAAR ID (PDF) – sirf card',0]};
+const AC={key:'aadhaar',src:null,r:{front:null,back:null},mode:'front',lock:true,drag:null,file:null};
+function admDestroyCrop(){AC.src=null;AC.file=null;AC.drag=null}
+function admPdfJs(){return window.pdfjsLib?Promise.resolve():new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';res()};s.onerror=()=>rej(new Error('PDF library load nahi hui. Internet on karke dobara try karein.'));document.head.appendChild(s)})}
+function admNameGuesses(fn){const stem=fn.replace(/\.[^.]*$/,'').replace(/\s*\(\d+\)\s*$/,'').trim(),u=stem.toUpperCase(),out=[stem,u,u.replace(/[\s_\-]+/g,'')];const yr=stem.match(/(19|20)\d\d/),nm=u.replace(/[^A-Z]/g,'');if(yr&&nm.length>=4)out.push(nm.slice(0,4)+yr[0]);return[...new Set(out.filter(Boolean))]}
+async function admLoadSource(file,pw){
+ if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){
+  await admPdfJs();const bytes=new Uint8Array(await file.arrayBuffer());let pdf=null;const tries=[undefined,...(pw?[pw]:[]),...admNameGuesses(file.name)];
+  for(const p of tries){const task=pdfjsLib.getDocument({data:bytes.slice(),password:p});try{pdf=await task.promise;break}catch(e){try{task.destroy()}catch(x){}if(e.name!=='PasswordException')throw e}}
+  if(!pdf)throw new Error('PDF ka password chahiye. Password box me daalein.');
+  const pg=await pdf.getPage(1),v0=pg.getViewport({scale:1}),vp=pg.getViewport({scale:Math.min(4,1800/v0.width)}),c=document.createElement('canvas');c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:vp}).promise;return c}
+ const im=await admReadImg(file),s=Math.min(1,1800/im.width),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);return c}
+function admSavedCrop(){return window.apAdminData.crops[AC.key]||null}
+function admRectsFromSaved(){const s=admSavedCrop();AC.r={front:null,back:null};if(!s||!AC.src)return;const W=AC.src.width,H=AC.src.height;for(const k of['front','back'])if(s[k])AC.r[k]={x:s[k].x*W,y:s[k].y*H,w:s[k].w*W,h:s[k].h*H}}
+function admCropStatus(){const s=admSavedCrop();A$('acStatus').innerHTML=s?'<span class="admBadge ok">✅ Custom crop active hai</span>':'<span class="admBadge df">Default (auto crop) chal raha hai</span>'}
+function admCropTab(){
+ A$('admBody').innerHTML=`<div class="admCard"><h3>✂️ Crop Setup</h3><p class="admHint">Section chunein, sample PDF/photo daalein, phir Front aur Back card ke upar box kheench kar bata dein. <b>Crop Save</b> ke baad us section me isi jagah se crop hoga. <b>Reset</b> dabane par pehle jaisa auto-crop ho jayega.</p>
+ <label>Section</label><select id="acKey">${Object.keys(ADM_TOOLS).map(k=>`<option value="${k}">${ADM_TOOLS[k][0]}</option>`).join('')}</select><div id="acStatus" style="margin-top:8px"></div>
+ <label>Sample file (PDF / Photo)</label><input type="file" id="acFile" accept="application/pdf,.pdf,image/*">
+ <label>PDF password (agar ho)</label><input type="text" id="acPw" placeholder="khali chhodein to file ke naam se try hoga" autocomplete="off">
+ <div class="admRow" id="acModes"><button type="button" data-m="front" class="on">① Front mark karein</button><button type="button" data-m="back">② Back mark karein</button><label><input type="checkbox" id="acLock" checked> 85.6×54 ratio lock</label></div>
+ <div class="admStage"><canvas id="acCv" width="640" height="300"></canvas></div>
+ <p class="admHint">Canvas par drag karke box banayein. Box ke andar drag = hilana, kone pakad kar = bada/chhota.</p>
+ <div class="admPrevs"><div><b>Front preview</b><canvas id="acPF" width="10" height="6"></canvas></div><div id="acPBw"><b>Back preview</b><canvas id="acPB" width="10" height="6"></canvas></div></div>
+ <div class="admRow"><button type="button" class="go" id="acSave">💾 Crop Save</button><button type="button" class="danger" id="acReset">↩ Reset (pehle jaisa)</button></div></div>`;
+ A$('acKey').value=AC.key;admCropStatus();admModeUI();admRectsFromSaved();admDraw();admPrev();
+ A$('acKey').onchange=e=>{AC.key=e.target.value;AC.mode='front';admCropStatus();admModeUI();admRectsFromSaved();admDraw();admPrev()};
+ A$('acFile').onchange=e=>{AC.file=e.target.files[0]||null;admLoadFile()};
+ A$('acPw').oninput=()=>{clearTimeout(AC.pt);AC.pt=setTimeout(()=>AC.file&&admLoadFile(),700)};
+ A$('acLock').onchange=e=>{AC.lock=e.target.checked};A$('acLock').checked=AC.lock;
+ A$('acModes').onclick=e=>{const b=e.target.closest('button[data-m]');if(!b)return;if(b.dataset.m==='back'&&!ADM_TOOLS[AC.key][1])return;AC.mode=b.dataset.m;admModeUI();admDraw()};
+ A$('acSave').onclick=admCropSave;A$('acReset').onclick=admCropReset;admBindCanvas()}
+function admModeUI(){const two=ADM_TOOLS[AC.key][1];if(!two&&AC.mode==='back')AC.mode='front';document.querySelectorAll('#acModes button').forEach(b=>{b.classList.toggle('on',b.dataset.m===AC.mode);if(b.dataset.m==='back')b.style.display=two?'':'none'});const w=A$('acPBw');if(w)w.style.display=two?'':'none';const f=document.querySelector('#acModes button[data-m="front"]');if(f)f.textContent=two?'① Front mark karein':'① Card mark karein'}
+async function admLoadFile(){if(!AC.file)return;try{AC.src=await admLoadSource(AC.file,A$('acPw').value.trim());admRectsFromSaved();admDraw();admPrev()}catch(e){AC.src=null;admDraw();admToast(e.message||String(e),1)}}
+function admDraw(){const cv=A$('acCv');if(!cv)return;const s=AC.src;if(!s){cv.width=640;cv.height=260;const x=cv.getContext('2d');x.fillStyle='#e2e8f0';x.fillRect(0,0,640,260);x.fillStyle='#475569';x.font='22px Arial';x.textAlign='center';x.fillText('Pehle sample PDF / photo chunein',320,135);return}
+ if(cv.width!==s.width||cv.height!==s.height){cv.width=s.width;cv.height=s.height}const x=cv.getContext('2d');x.drawImage(s,0,0);const lw=Math.max(3,cv.width/300),hs=Math.max(10,cv.width/70);
+ for(const k of['front','back']){const r=AC.r[k];if(!r||(k==='back'&&!ADM_TOOLS[AC.key][1]))continue;const col=k==='front'?'#16a34a':'#ea580c';x.fillStyle=col+'33';x.fillRect(r.x,r.y,r.w,r.h);x.strokeStyle=col;x.lineWidth=k===AC.mode?lw*1.6:lw;x.strokeRect(r.x,r.y,r.w,r.h);x.fillStyle=col;x.font='bold '+Math.round(hs*1.6)+'px Arial';x.textAlign='left';x.fillText(k==='front'?(ADM_TOOLS[AC.key][1]?'FRONT':'CARD'):'BACK',r.x+hs*.5,r.y+hs*1.8);
+  if(k===AC.mode)for(const[cx,cy]of[[r.x,r.y],[r.x+r.w,r.y],[r.x,r.y+r.h],[r.x+r.w,r.y+r.h]]){x.fillStyle='#fff';x.fillRect(cx-hs/2,cy-hs/2,hs,hs);x.strokeStyle=col;x.lineWidth=2;x.strokeRect(cx-hs/2,cy-hs/2,hs,hs)}}}
+function admPrev(){for(const[k,id]of[['front','acPF'],['back','acPB']]){const c=A$(id);if(!c)continue;const r=AC.r[k];if(!AC.src||!r||r.w<2||r.h<2){c.width=10;c.height=6;c.getContext('2d').clearRect(0,0,10,6);continue}c.width=Math.round(Math.min(700,r.w));c.height=Math.round(c.width*r.h/r.w);c.getContext('2d').drawImage(AC.src,r.x,r.y,r.w,r.h,0,0,c.width,c.height)}}
+function admBindCanvas(){const cv=A$('acCv'),pos=e=>{const b=cv.getBoundingClientRect();return{x:(e.clientX-b.left)*cv.width/b.width,y:(e.clientY-b.top)*cv.height/b.height}};
+ cv.addEventListener('pointerdown',e=>{if(!AC.src)return;e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(x){}const p=pos(e),r=AC.r[AC.mode],hs=Math.max(18,cv.width/40);
+  if(r){const cs=[[r.x,r.y],[r.x+r.w,r.y],[r.x,r.y+r.h],[r.x+r.w,r.y+r.h]],ci=cs.findIndex(c=>Math.abs(c[0]-p.x)<hs&&Math.abs(c[1]-p.y)<hs);
+   if(ci>=0){const o=cs[3-ci];AC.drag={t:'draw',ax:o[0],ay:o[1]};return}
+   if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){AC.drag={t:'move',dx:p.x-r.x,dy:p.y-r.y};return}}
+  AC.drag={t:'draw',ax:p.x,ay:p.y,fresh:true}});
+ cv.addEventListener('pointermove',e=>{const d=AC.drag;if(!d||!AC.src)return;e.preventDefault();const p=pos(e),W=cv.width,H=cv.height;
+  if(d.t==='move'){const r=AC.r[AC.mode];r.x=Math.max(0,Math.min(W-r.w,p.x-d.dx));r.y=Math.max(0,Math.min(H-r.h,p.y-d.dy))}
+  else{let px=Math.max(0,Math.min(W,p.x)),py=Math.max(0,Math.min(H,p.y)),w=Math.abs(px-d.ax),h=Math.abs(py-d.ay);
+   if(AC.lock){h=w*54/85.6;if(py<d.ay){if(d.ay-h<0){h=d.ay;w=h*85.6/54}}else if(d.ay+h>H){h=H-d.ay;w=h*85.6/54}
+    if(px<d.ax){if(d.ax-w<0){w=d.ax;h=w*54/85.6}}else if(d.ax+w>W){w=W-d.ax;h=w*54/85.6}}
+   const x0=px<d.ax?d.ax-w:d.ax,y0=py<d.ay?d.ay-h:d.ay;AC.r[AC.mode]={x:x0,y:y0,w,h}}
+  admDraw();admPrev()});
+ const end=()=>{const d=AC.drag;AC.drag=null;const r=AC.r[AC.mode];if(r&&(r.w<20||r.h<12))AC.r[AC.mode]=null;admDraw();admPrev()};
+ cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end)}
+async function admCropSave(){if(!AC.src){admToast('Pehle sample file chunein aur box banayein',1);return}const two=ADM_TOOLS[AC.key][1];if(!AC.r.front||(two&&!AC.r.back)){admToast(two?'Front aur Back dono ka box banayein':'Card ka box banayein',1);return}
+ const W=AC.src.width,H=AC.src.height,fr=r=>({x:+(r.x/W).toFixed(5),y:+(r.y/H).toFixed(5),w:+(r.w/W).toFixed(5),h:+(r.h/H).toFixed(5)});
+ const o={front:fr(AC.r.front)};if(two)o.back=fr(AC.r.back);window.apAdminData.crops[AC.key]=o;try{await admSave();admCropStatus();admToast('✓ Crop save ho gaya: '+ADM_TOOLS[AC.key][0])}catch(e){admToast('Save nahi hua: '+e.message,1)}}
+async function admCropReset(){if(!admSavedCrop()){admToast('Ye section pehle se default hai');return}if(!confirm(ADM_TOOLS[AC.key][0]+' ka custom crop hata kar pehle jaisa karein?'))return;delete window.apAdminData.crops[AC.key];AC.r={front:null,back:null};try{await admSave();admCropStatus();admDraw();admPrev();admToast('✓ Reset ho gaya, ab pehle jaisa auto-crop chalega')}catch(e){admToast('Reset nahi hua: '+e.message,1)}}
+
+/* ---------- 2) AADHAAR TEMPLATES ---------- */
+const AAD_W=2032,AAD_H=1276;
+const admThumb=(u,t)=>`<div>${u?`<img src="${u}" alt="">`:t}</div>`;
+function admAadTab(){const A=window.apAdminData.aadhaar,L=A.labels||{};
+ const up=(label,act,id,cls)=>`<label class="admBtn ${cls||''}">${label}<input type="file" accept="image/*" hidden data-act="${act}" data-id="${id}"></label>`;
+ A$('admBody').innerHTML=`<div class="admCard"><h3>🪪 Aadhaar – Card type dropdown</h3><p class="admHint">Yahan jo naam dikhenge wahi Aadhaar tool ke <b>3. Card type</b> dropdown me aayenge. Har naam badal sakte hain. Template ki size <b>85.6×54 mm (2032×1276)</b> ke hisab se fit hoti hai, layout 4th generation PVC jaisa rehna chahiye (photo, naam, number ki jagah wahi).</p>
+ <div class="admItem"><b>1. Built-in (white base)</b><div class="nm" style="margin-top:6px"><input type="text" id="aadL_w" value="${pmEsc(L.w||'White base (original)')}"><button type="button" class="admBtn go" data-act="lbl" data-id="w">Naam save</button></div></div>
+ <div class="admItem"><b>2. Built-in (4th generation PVC)</b><div class="nm" style="margin-top:6px"><input type="text" id="aadL_4" value="${pmEsc(L['4']||'PVC 4th generation')}"><button type="button" class="admBtn go" data-act="lbl" data-id="4">Naam save</button></div>
+  <div class="admThumbs">${admThumb(A.t4&&A.t4.front,'Original Front')}${admThumb(A.t4&&A.t4.back,'Original Back')}</div>
+  <div class="admRow">${up('Front template badlein','t4f','4')}${up('Back template badlein','t4b','4')}${A.t4?'<button type="button" class="admBtn danger" data-act="t4reset">Original par reset</button>':''}</div></div>
+ ${(A.list||[]).map((t,i)=>`<div class="admItem"><b>${i+3}. Custom template</b><div class="nm" style="margin-top:6px"><input type="text" id="aadN_${t.id}" value="${pmEsc(t.name)}"><button type="button" class="admBtn go" data-act="ren" data-id="${t.id}">Naam save</button></div>
+  <div class="admThumbs">${admThumb(t.front,'Front (original)')}${admThumb(t.back,'Back (original)')}</div>
+  <div class="admRow">${up('Front badlein','rf',t.id)}${up('Back badlein','rb',t.id)}<button type="button" class="admBtn danger" data-act="del" data-id="${t.id}">🗑 Delete</button></div></div>`).join('')}</div>
+ <div class="admCard"><h3>➕ Naya template jodein</h3><label>Template ka naam</label><input type="text" id="aadNewName" placeholder="Jaise: Blue PVC"><label>Front template image</label><input type="file" id="aadNewF" accept="image/*"><label>Back template image</label><input type="file" id="aadNewB" accept="image/*"><p class="admHint">Dono me se ek bhi chalega; jo side nahi doge usme 4th generation ka original template lagega.</p><div class="admRow"><button type="button" class="go" id="aadAdd">➕ Add karein</button></div></div>`;
+ A$('aadAdd').onclick=async()=>{const n=A$('aadNewName').value.trim(),ff=A$('aadNewF').files[0],bf=A$('aadNewB').files[0];if(!n){admToast('Template ka naam likhein',1);return}if(!ff&&!bf){admToast('Kam se kam ek image chunein',1);return}
+  try{const t={id:admId(),name:n,front:ff?await admFit(ff,AAD_W,AAD_H):null,back:bf?await admFit(bf,AAD_W,AAD_H):null};window.apAdminData.aadhaar.list.push(t);await admSave();admToast('✓ Template add ho gaya: '+n);admAadTab()}catch(e){admToast('Add nahi hua: '+e.message,1)}}}
+async function admAadAct(el){const A=window.apAdminData.aadhaar,act=el.dataset.act,id=el.dataset.id;
+ try{
+  if(act==='lbl'){const v=A$('aadL_'+id).value.trim();A.labels=A.labels||{};if(v)A.labels[id]=v;else delete A.labels[id];await admSave();admToast('✓ Naam save ho gaya')}
+  else if(act==='ren'){const v=A$('aadN_'+id).value.trim();if(!v){admToast('Naam khali nahi ho sakta',1);return}A.list.find(t=>t.id===id).name=v;await admSave();admToast('✓ Naam save ho gaya')}
+  else if(act==='del'){const t=A.list.find(x=>x.id===id);if(!confirm('"'+t.name+'" template delete karein?'))return;A.list=A.list.filter(x=>x.id!==id);await admSave();admToast('Delete ho gaya');admAadTab()}
+  else if(act==='t4reset'){if(!confirm('4th generation ka template original par reset karein?'))return;A.t4=null;await admSave();admToast('✓ Original template wapas');admAadTab()}
+ }catch(e){admToast('Error: '+e.message,1)}}
+async function admAadFile(inp){const f=inp.files[0];if(!f)return;const A=window.apAdminData.aadhaar,act=inp.dataset.act,id=inp.dataset.id;
+ try{const u=await admFit(f,AAD_W,AAD_H);
+  if(act==='t4f'||act==='t4b'){A.t4=A.t4||{front:null,back:null};A.t4[act==='t4f'?'front':'back']=u}
+  else{const t=A.list.find(x=>x.id===id);t[act==='rf'?'front':'back']=u}
+  await admSave();admToast('✓ Template badal gaya');admAadTab()}catch(e){admToast('Error: '+e.message,1)}}
+
+/* ---------- 3) ATM TEMPLATES ---------- */
+function admAtmTab(){const L=window.apAdminData.atm;
+ const row=t=>`<div class="admItem"><div class="admThumbs" style="grid-template-columns:120px 1fr;align-items:center"><div><img src="${t.img}" alt=""></div><div style="display:block;aspect-ratio:auto;background:none"><input type="text" id="atmN_${t.id}" value="${pmEsc(t.name)}"></div></div><div class="admRow"><button type="button" class="admBtn go" data-act="aren" data-id="${t.id}">Naam save</button><label class="admBtn">Image badlein<input type="file" accept="image/*" hidden data-act="aimg" data-id="${t.id}"></label><button type="button" class="admBtn danger" data-act="adel" data-id="${t.id}">🗑 Delete</button></div></div>`;
+ const fr=L.filter(t=>t.side==='front'),bk=L.filter(t=>t.side==='back');
+ A$('admBody').innerHTML=`<div class="admCard"><h3>💳 IPPB ATM – Templates</h3><p class="admHint">Yahan jo templates jodenge wo ATM tool ke <b>Templates dropdown</b> me sabhi ko dikhenge (Front aur Back alag list me). Jitne chahein utne add karein.</p>
+ <label>Template ka naam</label><input type="text" id="atmNewName" placeholder="Jaise: Red Card"><label>Kis side ke liye</label><select id="atmNewSide"><option value="front">Front (आगे)</option><option value="back">Back (पीछे)</option></select><label>Template image</label><input type="file" id="atmNewImg" accept="image/*"><label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" id="atmNewTrim" checked> Safed/khali kinara apne-aap kaatein</label><div class="admRow"><button type="button" class="go" id="atmAdd">➕ Add karein</button></div></div>
+ <div class="admCard"><h3>Front templates (${fr.length})</h3>${fr.map(row).join('')||'<p class="admHint">Abhi koi nahi.</p>'}</div>
+ <div class="admCard"><h3>Back templates (${bk.length})</h3>${bk.map(row).join('')||'<p class="admHint">Abhi koi nahi.</p>'}</div>`;
+ A$('atmAdd').onclick=async()=>{const n=A$('atmNewName').value.trim(),f=A$('atmNewImg').files[0];if(!n){admToast('Template ka naam likhein',1);return}if(!f){admToast('Image chunein',1);return}
+  try{window.apAdminData.atm.push({id:admId(),name:n,side:A$('atmNewSide').value,img:await admScale(f,1600),trim:A$('atmNewTrim').checked});await admSave();admToast('✓ Template add ho gaya: '+n);admAtmTab()}catch(e){admToast('Add nahi hua: '+e.message,1)}}}
+async function admAtmAct(el){const L=window.apAdminData.atm,id=el.dataset.id,act=el.dataset.act;
+ try{if(act==='aren'){const v=A$('atmN_'+id).value.trim();if(!v){admToast('Naam khali nahi ho sakta',1);return}L.find(t=>t.id===id).name=v;await admSave();admToast('✓ Naam save ho gaya')}
+  else if(act==='adel'){const t=L.find(x=>x.id===id);if(!confirm('"'+t.name+'" delete karein?'))return;window.apAdminData.atm=L.filter(x=>x.id!==id);await admSave();admToast('Delete ho gaya');admAtmTab()}}catch(e){admToast('Error: '+e.message,1)}}
+async function admAtmFile(inp){const f=inp.files[0];if(!f)return;try{window.apAdminData.atm.find(t=>t.id===inp.dataset.id).img=await admScale(f,1600);await admSave();admToast('✓ Image badal gayi');admAtmTab()}catch(e){admToast('Error: '+e.message,1)}}
+
+/* ---------- 4) PUBLISH / BACKUP ---------- */
+function admPubTab(){const D=window.apAdminData,nCrop=Object.keys(D.crops).length;
+ A$('admBody').innerHTML=`<div class="admCard"><h3>☁️ Automatic Cloud Sync</h3><p class="admHint">Admin ke crop settings, Aadhaar aur ATM templates Firebase Firestore me automatically save hote hain aur sabhi users ko dikhte hain. Ab admin-data.json download/upload karne ki zaroorat nahi hai.</p><p class="admHint">Status: <b>${window.apAdminSource==='firestore'?'Firestore se synced':window.apAdminSource==='local'?'Local cache (Firestore check karein)':'Default data'}</b><br>Custom crop: <b>${nCrop}</b> • Aadhaar templates: <b>${D.aadhaar.list.length}</b> • ATM templates: <b>${D.atm.length}</b></p><div class="admRow"><button type="button" class="go" id="pubSyncNow">☁️ Abhi Sync karein</button></div><p class="admHint">Sync ke liye owner Firebase account se login hona zaroori hai. User ke personal templates local browser me hi rahenge.</p></div>
+ <div class="admCard"><h3>🔑 PIN badlein</h3><input type="password" id="pubPin" placeholder="Naya PIN (4+)" autocomplete="off"><div class="admRow"><button type="button" class="go" id="pubPinBtn">PIN save</button></div></div>
+ <div class="admCard"><h3>⚠️ Sab kuch reset</h3><p class="admHint">Saare shared crop, Aadhaar aur ATM templates default par reset ho jayenge aur users ke liye bhi update honge.</p><div class="admRow"><button type="button" class="danger" id="pubReset">↩ Sab Reset karein</button></div></div>`;
+ A$('pubSyncNow').onclick=async()=>{try{await apWriteShared(window.apAdminData);window.apAdminSource='firestore';admToast('✓ Firestore par sync ho gaya');admPubTab()}catch(e){admToast('Sync nahi hua: '+(e.message||e),1)}};
+ A$('pubPinBtn').onclick=async()=>{const v=A$('pubPin').value.trim();if(v.length<4){admToast('PIN kam se kam 4 ka rakhein',1);return}try{await admPinSet(await admHash(v));A$('pubPin').value='';admToast('✓ PIN badal gaya')}catch(e){admToast(e.message,1)}};
+ A$('pubReset').onclick=async()=>{if(!confirm('Shared admin data reset karein? Sabhi users ke templates bhi reset honge.'))return;window.apAdminData=admEmpty();try{await admSave();admToast('✓ Reset aur Firestore sync ho gaya');admPubTab()}catch(e){admToast('Error: '+e.message,1)}}}
+
+/* ---------- wiring ---------- */
+A$('admBack').onclick=closeAdmin;A$('admGateBtn').onclick=admGateGo;A$('admPin').addEventListener('keydown',e=>{if(e.key==='Enter')admGateGo()});
+A$('admTabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(!b)return;admTab=b.dataset.tab;admRender()};
+A$('admBody').addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b)return;if(admTab==='aad')admAadAct(b);else if(admTab==='atm')admAtmAct(b)});
+A$('admBody').addEventListener('change',e=>{const i=e.target;if(!i.matches||!i.matches('input[type=file][data-act]'))return;if(admTab==='aad')admAadFile(i);else if(admTab==='atm')admAtmFile(i)});
+
+const __b=A$('admBack');__b.textContent='🔒 Lock';__b.onclick=()=>{closeAdmin();openAdmin()};
+openAdmin();
+</script><script>
+/* =====================================================================
+   SUBSCRIPTION SYSTEM  (localhost / front-end only, no backend)
+   Data store: IndexedDB 'AllPrintAdminDB' -> key 'subs'
+   NOTE: Sab data SB.get()/SB.put() se hi aata-jaata hai. Jab backend
+   banega to sirf in 2 functions ko API call se badalna hoga.
+   ===================================================================== */
+const SB={tabs:['sbr','sbu','sbm','sbp','sbs'],rf:'pending',uf:'all',uq:''};
+SB.DEF_TERMS='1. Subscription sirf registered mobile number ke liye hai.\n2. Ek ID ek hi device par chalegi.\n3. Payment verify hone ke baad hi ID active hogi.\n4. Plan ki fees refund nahi hogi (technical problem ko chhodkar).\n5. Support ke liye admin ko WhatsApp karein.';
+SB.norm=d=>{d=d&&typeof d==='object'?d:{};
+ const s=Object.assign({biz:'All Print',wa:'',contact:'',defMax:1,mode:'lock',warn:5,terms:SB.DEF_TERMS,seq:1000},d.settings||{});
+ const seed=[{id:'p'+Date.now().toString(36),name:s.biz,price:99,days:20,desc:'',upi:'',qr:null,active:true,kind:'new'}];
+ return{v:1,seeded:true,settings:s,plans:(Array.isArray(d.plans)?d.plans:(d.seeded?[]:seed)).map(p=>{p.kind=p.kind||'new';return p}),requests:Array.isArray(d.requests)?d.requests:[],msgs:Array.isArray(d.msgs)?d.msgs:[],users:(Array.isArray(d.users)?d.users:[]).map(u=>{if(!Array.isArray(u.devs))u.devs=u.dev?[{id:u.dev,info:u.devInfo||'',tok:u.tok||null,last:u.last||0}]:[];return u})}};
+SB.lim=(u,d)=>u.maxDev||d.settings.defMax||1;
+SB.get=async()=>{const raw=await admGet('subs'),d=SB.norm(raw);if(!raw||!raw.seeded)await SB.put(d);return d};
+SB.put=d=>admSet('subs',d);
+SB.tx=async fn=>{const d=await SB.get();const r=await fn(d);await SB.put(d);return r};
+
+/* ---------- helpers ---------- */
+SB.fmtD=t=>t?new Date(t).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+SB.fmtDT=t=>t?new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+SB.eod=t=>{const d=new Date(t);d.setHours(23,59,59,999);return d.getTime()};
+SB.addDays=(t,n)=>{const d=new Date(t);d.setDate(d.getDate()+n);return SB.eod(d.getTime())};
+SB.sod=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
+SB.left=t=>Math.round((SB.sod(t)-SB.sod(Date.now()))/864e5);
+SB.ymd=t=>{const d=new Date(t),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())};
+SB.hash=(uid,p)=>admSha256('apuser:'+uid+':'+p);
+SB.plabel=p=>p.name+' - '+p.days+' Days (₹'+p.price+')';
+SB.ustat=u=>u.blocked?'blocked':(u.expiry<Date.now()?'expired':'active');
+SB.rid=()=>'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+SB.devId=()=>{let v=null;try{v=localStorage.getItem('ap_device_id')}catch(e){}
+ if(!v){v=SB._mem||('D'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));SB._mem=v;try{localStorage.setItem('ap_device_id',v)}catch(e){}}return v};
+SB.devInfo=()=>{const u=navigator.userAgent;
+ const b=/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/Chrome\//.test(u)?'Chrome':/Firefox\//.test(u)?'Firefox':/Safari\//.test(u)?'Safari':'Browser';
+ const o=/Android/.test(u)?'Android':/iPhone|iPad/.test(u)?'iOS':/Windows/.test(u)?'Windows':/Mac OS/.test(u)?'Mac':/Linux/.test(u)?'Linux':'OS';return b+' / '+o};
+SB.log=(u,ev)=>{u.log=u.log||[];u.log.unshift({t:Date.now(),e:ev});u.log=u.log.slice(0,25)};
+SB.img=(file,maxW,type)=>new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
+ im.onload=()=>{URL.revokeObjectURL(u);const s=Math.min(1,maxW/im.width),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+  const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+  res(type==='png'?c.toDataURL('image/png'):c.toDataURL('image/jpeg',.82))};
+ im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('Image open nahi hui'))};im.src=u});
+SB.waLink=(mobile,msg)=>{let m=String(mobile||'').replace(/\D/g,'');if(m.length===10)m='91'+m;return 'https://wa.me/'+m+'?text='+encodeURIComponent(msg)};
+SB.copy=async t=>{try{await navigator.clipboard.writeText(t);return true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove();return ok}};
+
+/* ---------- Access control: kaun sa user kaun sa section chala sakta hai ---------- */
+SB.SECS=[{k:'aadhaar',n:'🪪 Aadhaar Services'},{k:'pan',n:'▤ PAN Card Services',sub:[{k:'pan_uti',n:'UTI PAN'},{k:'pan_nsdl',n:'NSDL PAN'},{k:'pan_manual',n:'Manual PAN'}]},{k:'voter',n:'🗳️ Voter ID Services'},{k:'apaar',n:'🎓 APAAR ID Services'},{k:'ayushman',n:'🌿 Ayushman Card'},{k:'ippb',n:'🏦 IPPB Passbook'},{k:'ippb-atm',n:'💳 IPPB ATM Card'},{k:'print-manager',n:'🖨️ Print Manager'},{k:'abha',n:'ABHA Card (jald aayega)'},{k:'eshram',n:'E-Shram & Labour Card (jald aayega)'},{k:'dl',n:'Driving Licence & RC (jald aayega)'},{k:'farmer',n:'Farmer / Kisan Services (jald aayega)'}];
+SB.ALLK=SB.SECS.flatMap(x=>[x.k].concat((x.sub||[]).map(y=>y.k)));
+SB.perms=(u,d)=>Array.isArray(u.perms)?u.perms:(Array.isArray(d.settings.defPerms)?d.settings.defPerms:SB.ALLK);
+SB.permBoxes=sel=>SB.SECS.map(x=>'<label class="sbPm"><input type="checkbox" class="sbPerm" value="'+x.k+'" '+(sel.includes(x.k)?'checked':'')+'> '+x.n+'</label>'+(x.sub?'<div class="sbPmSub">'+x.sub.map(y=>'<label class="sbPm"><input type="checkbox" class="sbPerm" value="'+y.k+'" '+(sel.includes(y.k)?'checked':'')+'> '+y.n+'</label>').join('')+'</div>':'')).join('');
+SB.permCount=(u,d)=>SB.perms(u,d).filter(k=>SB.SECS.some(x=>x.k===k)).length+'/'+SB.SECS.length;
+
+/* ---------- auth / registration (gate bhi yahi use karta hai) ---------- */
+SB.sess=()=>{try{return JSON.parse(localStorage.getItem('ap_session')||'null')}catch(e){return null}};
+SB.clearSess=()=>{try{localStorage.removeItem('ap_session')}catch(e){}};
+SB.login=async(mobile,pass)=>{mobile=String(mobile||'').trim();let out=null;
+ await SB.tx(async d=>{const u=d.users.find(x=>x.uid===mobile);
+  if(!u||u.ph!==SB.hash(u.uid,pass)){out={err:'Mobile number ya password galat hai.'};return}
+  if(u.blocked){out={err:'Aapki ID block hai. Admin se sampark karein.'};return}
+  if(u.expiry<Date.now()){out={expired:true,u:{name:u.name,mobile:u.mobile,email:u.email,expiry:u.expiry}};return}
+  const dev=SB.devId(),lim=SB.lim(u,d);let ex=u.devs.find(x=>x.id===dev);
+  if(!ex){if(u.devs.length>=lim){
+    if(d.settings.mode==='lock'){SB.log(u,'Blocked: device limit poori, naya device try ('+SB.devInfo()+')');out={err:'Is ID ki device limit ('+lim+') poori ho chuki hai — ye ID '+lim+' device par hi chal sakti hai. Naya device chalana ho to admin se sampark karein.'};return}
+    u.devs.sort((a,b)=>(a.last||0)-(b.last||0));while(u.devs.length>=lim){const r=u.devs.shift();SB.log(u,'Purana device logout: '+(r.info||''))}}
+   ex={id:dev};u.devs.push(ex)}
+  ex.info=SB.devInfo();ex.tok=SB.rid();ex.last=Date.now();u.last=Date.now();u.logins=(u.logins||0)+1;SB.log(u,'Login: '+SB.devInfo());
+  try{localStorage.setItem('ap_session',JSON.stringify({uid:u.uid,tok:ex.tok}))}catch(e){ex.tok=null;out={err:'Browser storage band hai, login nahi ho sakta.'};return}
+  out={ok:true,u}});
+ return out};
+SB.check=async()=>{const s=SB.sess();if(!s)return{ok:false};const d=await SB.get();const u=d.users.find(x=>x.uid===s.uid);
+ if(!u)return{ok:false,msg:'Aapki ID admin ne hata di hai.'};
+ if(u.blocked)return{ok:false,msg:'Aapki ID block kar di gayi hai. Admin se sampark karein.'};
+ if(u.expiry<Date.now())return{ok:false,expired:true,u,msg:'Aapka plan '+SB.fmtD(u.expiry)+' ko expire ho gaya hai.'};
+ const me=u.devs.find(x=>x.id===SB.devId());if(!me||me.tok!==s.tok)return{ok:false,msg:'Is device se aap logout ho chuke hain (naye device par login hua ya admin ne logout kiya). Dobara login karein.'};
+ return{ok:true,u,d}};
+SB.verify=async(mobile,pass)=>{const d=await SB.get(),u=d.users.find(x=>x.uid===String(mobile||'').trim());return u&&u.ph===SB.hash(u.uid,pass)?u:null};
+SB.pending=async mobile=>{const d=await SB.get();return d.requests.find(r=>r.mobile===mobile&&r.status==='pending')||null};
+SB.register=async f=>{let out;const kind=f.kind==='renew'?'renew':'new';
+ await SB.tx(async d=>{const p=d.plans.find(x=>x.id===f.plan&&x.active&&x.kind===kind);
+  if(!p){out={err:'Ye plan ab available nahi hai. Dobara plan chunein.'};return}
+  const eu=d.users.find(u=>u.uid===f.mobile);
+  if(kind==='new'&&eu){out={err:'Is mobile number par account pehle se hai. Plan badhane ke liye "Renewal" use karein.'};return}
+  if(kind==='renew'){if(!eu||eu.ph!==SB.hash(eu.uid,f.pass||'')){out={err:'User ID ya password galat hai.'};return}if(eu.blocked){out={err:'Aapki ID block hai. Admin se sampark karein.'};return}}
+  const pr=d.requests.find(r=>r.mobile===f.mobile&&r.status==='pending');
+  if(pr){out={err:'Is mobile number par request '+pr.id+' pehle se pending hai. Admin ke approve karne ka intezar karein.'};return}
+  if(f.utr&&d.requests.some(r=>r.utr&&r.utr.toLowerCase()===f.utr.toLowerCase()&&r.status!=='rejected')){out={err:'Ye UTR / Transaction ID pehle use ho chuka hai.'};return}
+  const r={id:'R'+(++d.settings.seq),type:kind,name:kind==='renew'?eu.name:f.name,mobile:f.mobile,email:kind==='renew'?(eu.email||''):f.email,planId:p.id,planName:p.name,days:p.days,price:p.price,utr:f.utr||'',shot:f.shot||null,status:'pending',at:Date.now()};
+  if(kind==='renew'){r.prevExpiry=eu.expiry;r.prevPlan=eu.planName||''}
+  d.requests.unshift(r);out={ok:true,r}});
+ return out};
+SB.approve=async id=>{let res;
+ await SB.tx(async d=>{const r=d.requests.find(x=>x.id===id);if(!r||r.status!=='pending')throw new Error('Ye request ab pending nahi hai');
+  let u=d.users.find(x=>x.uid===r.mobile),isNew=false;
+  if(!u&&r.type==='renew')throw new Error('Ye user ab maujood nahi hai (delete ho gaya?)');
+  if(!u){isNew=true;u={uid:r.mobile,ph:SB.hash(r.mobile,r.mobile),name:r.name,email:r.email,mobile:r.mobile,created:Date.now(),expiry:0,blocked:false,devs:[],logins:0,log:[]};d.users.push(u)}
+  u.expiry=SB.addDays(Math.max(u.expiry||0,Date.now()),r.days);u.planName=r.planName;u.price=r.price;
+  SB.log(u,(isNew?'Account bana':'Renew hua')+' ('+r.id+', +'+r.days+' din)');
+  r.status='approved';r.done=Date.now();res={u:JSON.parse(JSON.stringify(u)),r,isNew,biz:d.settings.biz}});
+ return res};
+
+/* ---------- admin UI helpers ---------- */
+SB.modal=html=>{SB.closeModal();const o=document.createElement('div');o.id='sbModal';o.className='sbModal';
+ o.innerHTML='<div class="sbBox"><button type="button" class="sbX" data-sb="mclose">✕</button>'+html+'</div>';
+ o.addEventListener('click',e=>{if(e.target===o){SB.closeModal();return}const b=e.target.closest('[data-sb]');if(b)SB.act(b)});
+ o.addEventListener('change',SB.mchange);document.body.appendChild(o);return o};
+SB.closeModal=()=>{const o=document.getElementById('sbModal');if(o)o.remove()};
+SB.v=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+SB.badge=(t,c)=>'<span class="admBadge '+c+'">'+t+'</span>';
+SB.ubadge=u=>{const s=SB.ustat(u);return s==='active'?SB.badge('● Active','ok'):s==='expired'?SB.badge('● Expired','sbRed'):SB.badge('● Blocked','sbDark')};
+SB.rbadge=r=>r.status==='pending'?SB.badge('⏳ Pending','sbAmb'):r.status==='approved'?SB.badge('✅ Approved','ok'):SB.badge('❌ Rejected','sbRed');
+SB.subsBadge=async()=>{try{const d=await SB.get(),n=d.requests.filter(r=>r.status==='pending').length,m=d.msgs.filter(x=>x.status==='new').length,b=document.querySelector('#admTabs button[data-tab="sbr"]'),c=document.querySelector('#admTabs button[data-tab="sbm"]');if(b)b.textContent='🧾 Requests'+(n?' ('+n+')':'');if(c)c.textContent='💬 Messages'+(m?' ('+m+')':'')}catch(e){}};
+window.subsBadge=SB.subsBadge;
+
+/* ---------- TAB 1: Payment requests ---------- */
+async function subsReqTab(){const d=await SB.get(),R=d.requests,f=SB.rf;
+ const cnt=s=>R.filter(r=>r.status===s).length,list=R.filter(r=>f==='all'||r.status===f);
+ const chip=(v,t)=>'<button type="button" data-sb="rf" data-v="'+v+'" class="'+(f===v?'on':'')+'">'+t+'</button>';
+ const card=r=>'<div class="admItem"><div class="sbTop"><b>'+pmEsc(r.name)+'</b>'+SB.rbadge(r)+'</div>'+
+  '<div class="admHint"><b>'+r.id+'</b> • '+(r.type==='renew'?'🔁 RENEWAL':'🆕 Naya Registration')+' • '+SB.fmtDT(r.at)+'<br>'+
+  '📱 User ID: <b>'+pmEsc(r.mobile)+'</b> &nbsp; ✉ '+pmEsc(r.email||'—')+'<br>'+(r.type==='renew'?'📅 Purani expiry: <b>'+SB.fmtD(r.prevExpiry)+'</b> • Purana plan: '+pmEsc(r.prevPlan||'—')+'<br>':'')+
+  '💎 '+pmEsc(r.planName)+' • '+r.days+' Days • <b>₹'+r.price+'</b><br>'+
+  '🧾 UTR / Txn ID: <b>'+pmEsc(r.utr||'—')+'</b></div>'+
+  (r.shot?'<img class="sbShot" src="'+r.shot+'" alt="" data-sb="rshot" data-id="'+r.id+'">':'')+
+  '<div class="admRow">'+(r.status==='pending'?'<button type="button" class="go" data-sb="rapp" data-id="'+r.id+'">✅ Approve</button><button type="button" class="danger" data-sb="rrej" data-id="'+r.id+'">❌ Reject</button>':'')+
+  '<button type="button" data-sb="rdel" data-id="'+r.id+'">🗑 Delete</button></div>'+
+  (r.status==='rejected'&&r.note?'<div class="admHint">Reason: '+pmEsc(r.note)+'</div>':'')+'</div>';
+ A$('admBody').innerHTML='<div class="admCard"><h3>🧾 Payment Requests</h3><p class="admHint">User ne jo payment ki, uski details yahan aati hain. UTR apne bank / UPI app me match karke <b>Approve</b> karein — tab user ki ID active hogi.</p>'+
+  '<div class="admTabs sbChips">'+chip('pending','⏳ Pending ('+cnt('pending')+')')+chip('approved','✅ Approved ('+cnt('approved')+')')+chip('rejected','❌ Rejected ('+cnt('rejected')+')')+chip('all','Sab ('+R.length+')')+'</div></div>'+
+  (list.length?list.map(card).join(''):'<div class="admCard"><p class="admHint">Koi request nahi.</p></div>');
+ SB.subsBadge()}
+
+/* ---------- TAB 2: Users ---------- */
+async function subsUsersTab(){const d=await SB.get(),U=d.users,w=d.settings.warn;
+ const st=u=>SB.ustat(u),act=U.filter(u=>st(u)==='active'),exp=act.filter(u=>SB.left(u.expiry)<=w);
+ const q=SB.uq.toLowerCase(),f=SB.uf;
+ const list=U.filter(u=>(f==='all'||(f==='soon'?(st(u)==='active'&&SB.left(u.expiry)<=w):st(u)===f))&&(!q||(u.name+' '+u.mobile+' '+(u.email||'')).toLowerCase().includes(q))).sort((a,b)=>a.expiry-b.expiry);
+ const chip=(v,t)=>'<button type="button" data-sb="uf" data-v="'+v+'" class="'+(f===v?'on':'')+'">'+t+'</button>';
+ const card=u=>{const n=SB.left(u.expiry);return'<div class="admItem"><div class="sbTop"><b>'+pmEsc(u.name)+'</b>'+SB.ubadge(u)+'</div>'+
+  '<div class="admHint">🆔 User ID: <b>'+pmEsc(u.uid)+'</b> • ✉ '+pmEsc(u.email||'—')+'<br>💎 '+pmEsc(u.planName||'—')+'<br>📅 Expiry: <b>'+SB.fmtD(u.expiry)+'</b> '+(u.expiry<Date.now()?'(expire ho chuka)':'('+n+' din baaki)')+
+  '<br>🔐 Sections: <b>'+SB.permCount(u,d)+'</b> &nbsp; 📱 Device: <b>'+u.devs.length+'/'+SB.lim(u,d)+'</b> '+(u.devs.length?'('+pmEsc(u.devs.map(x=>x.info).join(' + '))+')':'<i>koi nahi</i>')+' • Last login: '+SB.fmtDT(u.last)+'</div>'+
+  '<div class="admRow"><button type="button" class="go" data-sb="uman" data-id="'+pmEsc(u.uid)+'">⚙ Manage</button>'+(u.devs.length?'<button type="button" data-sb="devrst" data-id="'+pmEsc(u.uid)+'">📱 Device Reset</button>':'')+'</div></div>'};
+ A$('admBody').innerHTML='<div class="admCard"><h3>👥 Users / Subscribers</h3>'+
+  '<div class="sbStats"><div><b>'+U.length+'</b>Total</div><div><b>'+act.length+'</b>Active</div><div><b>'+exp.length+'</b>Jaldi expire</div><div><b>'+U.filter(u=>st(u)==='expired').length+'</b>Expired</div><div><b>'+U.filter(u=>u.blocked).length+'</b>Blocked</div></div>'+
+  '<input type="text" id="sbSearch" placeholder="🔍 Naam / mobile / email se dhoondhein" value="'+pmEsc(SB.uq)+'" style="margin-top:10px">'+
+  '<div class="admTabs sbChips" style="margin-top:10px">'+chip('all','Sab')+chip('active','Active')+chip('soon','Jaldi expire')+chip('expired','Expired')+chip('blocked','Blocked')+'</div>'+
+  '<div class="admRow"><button type="button" class="go" data-sb="uadd">➕ Naya User jodein</button><button type="button" data-sb="csv">⬇ CSV</button></div></div>'+
+  (list.length?list.map(card).join(''):'<div class="admCard"><p class="admHint">Koi user nahi mila.</p></div>');
+ const s=A$('sbSearch');s.oninput=()=>{SB.uq=s.value;clearTimeout(SB.st);SB.st=setTimeout(async()=>{await subsUsersTab();const e=A$('sbSearch');e.focus();e.setSelectionRange(e.value.length,e.value.length)},250)}}
+
+SB.openUser=async uid=>{const d=await SB.get(),u=d.users.find(x=>x.uid===uid);if(!u){SB.closeModal();return}
+ const n=SB.left(u.expiry),ex=(v,t)=>'<button type="button" data-sb="ext" data-id="'+pmEsc(uid)+'" data-n="'+v+'" class="'+(v<0?'sbMinus':'sbPlus')+'">'+t+'</button>';
+ SB.modal('<h3>⚙ '+pmEsc(u.name)+' '+SB.ubadge(u)+'</h3><p class="admHint">User ID: <b>'+pmEsc(u.uid)+'</b> • Plan: '+pmEsc(u.planName||'—')+'</p>'+
+  '<div class="sbSec"><b>📅 Expiry date</b><p class="admHint">Abhi: <b>'+SB.fmtD(u.expiry)+'</b> '+(u.expiry<Date.now()?'(expire ho chuka)':'('+n+' din baaki)')+'</p>'+
+  '<div class="admRow">'+ex(7,'+7')+ex(15,'+15')+ex(30,'+30')+ex(90,'+90')+ex(365,'+365')+'</div><div class="admRow">'+ex(-7,'−7')+ex(-15,'−15')+ex(-30,'−30')+'</div>'+
+  '<div class="sbGrid"><input type="text" id="mCustom" inputmode="numeric" placeholder="Din (kam karne ko −5)"><button type="button" class="admBtn go" data-sb="extc" data-id="'+pmEsc(uid)+'">Lagayein</button></div>'+
+  '<div class="sbGrid"><input type="date" id="mDate" value="'+SB.ymd(u.expiry)+'"><button type="button" class="admBtn go" data-sb="exset" data-id="'+pmEsc(uid)+'">Date set karein</button></div></div>'+
+  '<div class="sbSec"><b>🔑 Password</b><p class="admHint">Naya user ka password uska mobile number hota hai. Password dikhaya nahi jata, sirf badla ja sakta hai.</p>'+
+  '<div class="sbGrid"><input type="text" id="mPw" placeholder="Naya password (4+)" autocomplete="off"><button type="button" class="admBtn go" data-sb="pwset" data-id="'+pmEsc(uid)+'">Password badlein</button></div>'+
+  '<div class="admRow"><button type="button" class="admBtn" data-sb="pwmob" data-id="'+pmEsc(uid)+'">Password = mobile number karein</button></div></div>'+
+  '<div class="sbSec"><b>📱 Devices (ek ID kitne device par chale)</b><p class="admHint">Device limit: <b>'+SB.lim(u,d)+'</b> • Last login: '+SB.fmtDT(u.last)+' • Total login: '+(u.logins||0)+'</p>'+
+  '<div class="admRow"><button type="button" class="admBtn '+(SB.lim(u,d)===1?'go':'')+'" data-sb="maxd" data-id="'+pmEsc(uid)+'" data-n="1">Sirf 1 device</button><button type="button" class="admBtn '+(SB.lim(u,d)===2?'go':'')+'" data-sb="maxd" data-id="'+pmEsc(uid)+'" data-n="2">2 device allow</button></div>'+
+  (u.devs.length?u.devs.map(x=>'<div class="sbDev"><span>'+pmEsc(x.info||'Device')+'<br><small>Last: '+SB.fmtDT(x.last)+(x.tok?' • logged in':' • logged out')+'</small></span><button type="button" class="admBtn danger" data-sb="devdel" data-id="'+pmEsc(uid)+'" data-v="'+pmEsc(x.id)+'">Hatayein</button></div>').join(''):'<p class="admHint"><i>Abhi koi device bound nahi.</i></p>')+
+  '<div class="admRow"><button type="button" class="admBtn" data-sb="devrst" data-id="'+pmEsc(uid)+'">📱 Sab device reset</button><button type="button" class="admBtn" data-sb="lout" data-id="'+pmEsc(uid)+'">🚪 Force Logout</button></div></div>'+
+  '<div class="sbSec"><b>🔐 Access — kaun-kaun se section chalega</b><p class="admHint">Jo ✔ hai wahi user ko khulega, baaki par 🔒 lagega. Save ke baad user par 15 second me lag jata hai.</p><div class="admRow"><button type="button" class="admBtn" data-sb="pmall">Sab ON</button><button type="button" class="admBtn" data-sb="pmnone">Sab OFF</button><button type="button" class="admBtn" data-sb="pmdef">Default</button></div><div class="sbPmBox">'+SB.permBoxes(SB.perms(u,d))+'</div><div class="admRow"><button type="button" class="admBtn go" data-sb="pmsave" data-id="'+pmEsc(uid)+'">💾 Access save karein</button></div></div>'+
+  '<div class="sbSec"><b>👤 Details</b><label>Naam</label><input type="text" id="mName" value="'+pmEsc(u.name)+'"><label>Email</label><input type="text" id="mMail" value="'+pmEsc(u.email||'')+'">'+
+  '<div class="admRow"><button type="button" class="admBtn go" data-sb="uinfo" data-id="'+pmEsc(uid)+'">💾 Save</button></div></div>'+
+  '<div class="admRow"><button type="button" class="admBtn '+(u.blocked?'go':'danger')+'" data-sb="blk" data-id="'+pmEsc(uid)+'">'+(u.blocked?'✅ Unblock karein':'🚫 Block karein')+'</button><button type="button" class="admBtn danger" data-sb="udel" data-id="'+pmEsc(uid)+'">🗑 Delete User</button></div>'+
+  '<div class="sbSec"><b>📜 Activity</b><div class="sbLog">'+((u.log||[]).slice(0,10).map(l=>'<div>'+SB.fmtDT(l.t)+' — '+pmEsc(l.e)+'</div>').join('')||'<i>Abhi kuch nahi</i>')+'</div></div>')};
+
+SB.mutUser=async(uid,fn,msg)=>{await SB.tx(async d=>{const u=d.users.find(x=>x.uid===uid);if(!u)throw new Error('User nahi mila');await fn(u,d)});
+ if(msg)admToast(msg);if(document.getElementById('sbModal'))await SB.openUser(uid);admRender()};
+
+/* ---------- TAB 3: Plans & QR ---------- */
+async function subsPlansTab(){const d=await SB.get();
+ const card=p=>'<div class="admItem"><div class="sbTop"><b>'+pmEsc(SB.plabel(p))+'</b>'+(p.active?SB.badge('Live','ok'):SB.badge('Hidden','df'))+'</div>'+
+  '<div class="sbPlan"><div class="sbQrBox">'+(p.qr?'<img src="'+p.qr+'" alt="QR">':'<span>QR nahi</span>')+'</div><div class="admHint">'+(p.desc?pmEsc(p.desc)+'<br>':'')+(p.upi?'UPI: <b>'+pmEsc(p.upi)+'</b><br>':'')+(p.qr?'':'<b style="color:#b91c1c">⚠ QR upload karein, warna user ko payment screen par QR nahi dikhega.</b>')+'</div></div>'+
+  '<div class="admRow"><button type="button" class="go" data-sb="pedit" data-id="'+p.id+'">✏️ Edit / QR</button><button type="button" data-sb="ptog" data-id="'+p.id+'">'+(p.active?'👁 Hide':'👁 Live karein')+'</button><button type="button" class="danger" data-sb="pdel" data-id="'+p.id+'">🗑 Delete</button></div></div>';
+ const sec=(k,t,hint)=>{const L=d.plans.filter(p=>p.kind===k);return'<div class="admCard"><h3>'+t+'</h3><p class="admHint">'+hint+'</p><div class="admRow"><button type="button" class="go" data-sb="padd" data-k="'+k+'">➕ Naya '+(k==='new'?'Registration':'Renewal')+' Plan</button></div></div>'+(L.length?L.map(card).join(''):'<div class="admCard"><p class="admHint">Abhi koi plan nahi.</p></div>')};
+ A$('admBody').innerHTML=sec('new','🆕 Registration Plans','Ye plan sirf <b>naye user ke Register</b> form me dikhenge. User jo plan chunega, usi amount ka <b>QR</b> payment screen par khulega — isliye har plan ka QR us amount ka banakar upload karein.')+
+  sec('renew','🔁 Renewal Plans','Ye plan sirf <b>Renewal</b> screen me dikhenge (jab purana user ID + password daalkar plan badhata hai). Inke price / din / QR registration se alag rakh sakte hain.')}
+SB.planForm=async(id,kind)=>{const d=await SB.get(),p=d.plans.find(x=>x.id===id)||{name:d.settings.biz+(kind==='renew'?' Renewal':''),price:'',days:'',desc:'',upi:'',qr:null,active:true,kind:kind||'new'};kind=p.kind;SB._pqr=undefined;
+ SB.modal('<h3>'+(id?'✏️ Plan edit':'➕ Naya Plan')+' — '+(kind==='renew'?'🔁 Renewal':'🆕 Registration')+'</h3><label>Plan ka naam</label><input type="text" id="pName" value="'+pmEsc(p.name)+'">'+
+  '<div class="sbGrid2"><div><label>Price (₹)</label><input type="text" id="pPrice" inputmode="numeric" value="'+pmEsc(String(p.price))+'"></div><div><label>Din (validity)</label><input type="text" id="pDays" inputmode="numeric" value="'+pmEsc(String(p.days))+'"></div></div>'+
+  '<label>Description (optional)</label><input type="text" id="pDesc" value="'+pmEsc(p.desc||'')+'"><label>UPI ID (optional, QR ke neeche dikhega)</label><input type="text" id="pUpi" value="'+pmEsc(p.upi||'')+'" placeholder="name@bank">'+
+  '<label>Payment QR image (is amount ka)</label><input type="file" id="pQr" accept="image/*"><div class="sbQrBox big" id="pQrPrev">'+(p.qr?'<img src="'+p.qr+'" alt="QR">':'<span>QR nahi</span>')+'</div>'+
+  '<div class="admRow"><label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="pAct" '+(p.active?'checked':'')+'> Live (user ko dikhayein)</label></div>'+
+  '<div class="admRow"><button type="button" class="admBtn go" data-sb="psave" data-id="'+(id||'')+'" data-k="'+kind+'">💾 Save</button>'+(p.qr?'<button type="button" class="admBtn danger" data-sb="pqrdel" data-id="'+(id||'')+'">QR hatayein</button>':'')+'</div>')};
+SB.mchange=async e=>{const i=e.target;if(i.id==='pQr'&&i.files[0]){try{SB._pqr=await SB.img(i.files[0],800,'png');document.getElementById('pQrPrev').innerHTML='<img src="'+SB._pqr+'" alt="QR">'}catch(x){admToast(x.message,1)}}};
+
+/* ---------- TAB 4: Settings ---------- */
+async function subsSetTab(){const d=await SB.get(),s=d.settings;
+ A$('admBody').innerHTML='<div class="admCard"><h3>⚙️ Subscription Settings</h3>'+
+  '<label>Business / App ka naam</label><input type="text" id="sBiz" value="'+pmEsc(s.biz)+'">'+
+  '<label>Contact number (user ko Contact Us me dikhega)</label><input type="text" id="sContact" inputmode="tel" value="'+pmEsc(s.contact||'')+'" placeholder="jaise 9876543210">'+'<label>WhatsApp number (country code ke saath, jaise 919876543210)</label><input type="text" id="sWa" inputmode="numeric" value="'+pmEsc(s.wa)+'">'+'<label>Naye user ki default device limit</label><select id="sDef"><option value="1" '+((s.defMax||1)===1?'selected':'')+'>1 device</option><option value="2" '+(s.defMax===2?'selected':'')+'>2 device</option></select><p class="admHint">Kisi ek user ke liye alag limit Users → Manage me set hoti hai.</p>'+
+  '<label>Device rule</label><select id="sMode"><option value="lock" '+(s.mode==='lock'?'selected':'')+'>Strict lock — limit poori hone par naya device reject (admin hataye tabhi)</option><option value="replace" '+(s.mode==='replace'?'selected':'')+'>Latest login — limit poori hone par sabse purana device logout</option></select>'+
+  '<label>Expiry se kitne din pehle user ko warning dikhayein</label><input type="text" id="sWarn" inputmode="numeric" value="'+s.warn+'">'+
+  '<label>Terms, Refund & Support Policy (registration me dikhegi)</label><textarea id="sTerms" rows="7">'+pmEsc(s.terms)+'</textarea>'+
+  '<div class="admRow"><button type="button" class="go" data-sb="setsave">💾 Save Settings</button></div></div>'+
+  '<div class="admCard"><h3>🔐 Naye user ke default sections</h3><p class="admHint">Naya user banne par ye sections khulenge. Kisi ek user ka access Users → Manage me alag se badal sakte hain.</p><div class="sbPmBox" id="sbDefPerm">'+SB.permBoxes(Array.isArray(s.defPerms)?s.defPerms:SB.ALLK)+'</div><div class="admRow"><button type="button" class="go" data-sb="dpsave">💾 Default save</button></div></div>'+
+  '<div class="admCard"><h3>📦 Backup</h3><p class="admHint">Users, plans, QR aur requests ka poora backup. (Ye data "Publish / Backup" wale admin-data.json me nahi jata.)</p><div class="admRow"><button type="button" class="go" data-sb="exp">⬇ Subscription backup download</button><label class="admBtn">⬆ Backup import<input type="file" accept="application/json,.json" hidden id="sbImp"></label></div></div>'+
+  '<div class="admCard"><h3>🧪 Testing (localhost)</h3><p class="admHint">Is browser ka Device ID: <b>'+SB.devId()+'</b><br>Ek hi browser me "dusra device" test karne ke liye neeche button se Device ID badal dein — phir usi ID se login karke dekhein ki block hota hai ya nahi.</p><div class="admRow"><button type="button" data-sb="devnew">🔄 Is browser ka Device ID badlein</button></div></div>'+
+  '<div class="admCard"><h3>⚠️ Subscription data reset</h3><p class="admHint">Saare users, requests aur plans hat jayenge.</p><div class="admRow"><button type="button" class="danger" data-sb="sreset">↩ Sab reset</button></div></div>'}
+
+
+/* ---------- Support messages & password-change requests ---------- */
+SB.addMsg=async m=>{let out;
+ await SB.tx(async d=>{
+  if(m.kind==='pwd'){const u=d.users.find(x=>x.uid===m.mobile);if(!u){out={err:'Is mobile number par koi account nahi mila.'};return}
+   if(d.msgs.some(x=>x.kind==='pwd'&&x.mobile===m.mobile&&x.status==='new')){out={err:'Aapki password change request pehle se pending hai.'};return}
+   m.name=u.name}
+  const r=Object.assign({id:(m.kind==='pwd'?'P':'S')+(++d.settings.seq),status:'new',at:Date.now(),reply:'',repAt:0},m);d.msgs.unshift(r);out={ok:true,r}});
+ return out};
+SB.myMsgs=async(mobile,kind)=>{const d=await SB.get();return d.msgs.filter(x=>x.mobile===mobile&&x.kind===kind).slice(0,5)};
+SB.mbadge=m=>m.status==='new'?SB.badge('⏳ Naya','sbAmb'):m.status==='rejected'?SB.badge('❌ Rejected','sbRed'):SB.badge(m.kind==='pwd'?'✅ Approved':'✅ Done','ok');
+SB.mf='support';
+async function subsMsgTab(){const d=await SB.get(),M=d.msgs,f=SB.mf;
+ const nS=M.filter(m=>m.kind==='support'&&m.status==='new').length,nP=M.filter(m=>m.kind==='pwd'&&m.status==='new').length;
+ const list=M.filter(m=>f==='all'||(f==='support'?(m.kind==='support'&&m.status==='new'):f==='pwd'?(m.kind==='pwd'&&m.status==='new'):m.status!=='new'));
+ const chip=(v,t)=>'<button type="button" data-sb="mf" data-v="'+v+'" class="'+(f===v?'on':'')+'">'+t+'</button>';
+ const card=m=>'<div class="admItem"><div class="sbTop"><b>'+(m.kind==='pwd'?'🔑 Password Change Request':'🛟 '+pmEsc(m.subject||'Help & Support'))+'</b>'+SB.mbadge(m)+'</div>'+
+  '<div class="admHint"><b>'+m.id+'</b> • '+SB.fmtDT(m.at)+'<br>👤 '+pmEsc(m.name||'—')+' • 📱 '+pmEsc(m.mobile)+'</div>'+
+  (m.kind==='support'?'<div class="sbPre">'+pmEsc(m.text)+'</div>':'<p class="admHint">User naya password set karwana chahta hai. '+(m.verified?'✔ Usne <b>purana password sahi</b> daala tha. ':'')+'<b>Pehle phone / WhatsApp par pehchan confirm karein</b>, phir Approve karein. Password aapko dikhta nahi, sirf apply hota hai.</p>')+
+  (m.reply?'<div class="admHint">💬 Aapka jawab: '+pmEsc(m.reply)+'</div>':'')+(m.note?'<div class="admHint">Reason: '+pmEsc(m.note)+'</div>':'')+
+  '<div class="admRow">'+(m.kind==='support'?'<button type="button" class="go" data-sb="mreply" data-id="'+m.id+'">💬 Reply</button>'+(m.status==='new'?'<button type="button" data-sb="mdone" data-id="'+m.id+'">✔ Done</button>':''):(m.status==='new'?'<button type="button" class="go" data-sb="mpapp" data-id="'+m.id+'">✅ Approve</button><button type="button" class="danger" data-sb="mprej" data-id="'+m.id+'">❌ Reject</button>':''))+
+  '<button type="button" data-sb="mdel" data-id="'+m.id+'">🗑</button></div></div>';
+ A$('admBody').innerHTML='<div class="admCard"><h3>💬 Messages</h3><p class="admHint">Users ke Help &amp; Support messages aur password change requests yahan aate hain.</p><div class="admTabs sbChips">'+chip('support','🛟 Support ('+nS+')')+chip('pwd','🔑 Password ('+nP+')')+chip('done','✔ Closed')+chip('all','Sab')+'</div></div>'+
+  (list.length?list.map(card).join(''):'<div class="admCard"><p class="admHint">Koi message nahi.</p></div>');SB.subsBadge()}
+
+/* ---------- action dispatcher ---------- */
+SB.act=async b=>{const a=b.dataset.sb,id=b.dataset.id;
+ try{switch(a){
+  case 'mclose':SB.closeModal();break;
+  case 'rf':SB.rf=b.dataset.v;subsReqTab();break;
+  case 'uf':SB.uf=b.dataset.v;subsUsersTab();break;
+  case 'rshot':{const d=await SB.get(),r=d.requests.find(x=>x.id===id);if(r&&r.shot)SB.modal('<h3>Payment screenshot — '+r.id+'</h3><img src="'+r.shot+'" style="width:100%;border-radius:10px" alt="">');break}
+  case 'rapp':{const d=await SB.get(),r=d.requests.find(x=>x.id===id);if(!r)return;
+   if(!confirm(r.name+' ('+r.mobile+')\n'+r.planName+' • ₹'+r.price+' • '+r.days+' din\nUTR: '+(r.utr||'—')+'\n\nPayment mil gaya? Approve karein?'))return;
+   const x=await SB.approve(id);await subsReqTab();
+   const msg=x.isNew?('Namaste '+x.u.name+', aapka '+x.biz+' account active ho gaya hai.\n\nUser ID: '+x.u.uid+'\nPassword: '+x.u.uid+' (mobile number)\nPlan: '+x.r.planName+' - '+x.r.days+' Days\nExpiry: '+SB.fmtD(x.u.expiry)+'\n\nNote: Ek ID sirf ek device par chalegi.'):('Namaste '+x.u.name+', aapka '+x.biz+' plan renew ho gaya hai.\n\nPlan: '+x.r.planName+' - '+x.r.days+' Days\nNayi Expiry: '+SB.fmtD(x.u.expiry));
+   SB._wa=SB.waLink(x.u.mobile,msg);SB._msg=msg;
+   SB.modal('<h3>✅ Approved</h3><p class="admHint">'+(x.isNew?'Naya account ban gaya. User ID aur password dono: <b>'+pmEsc(x.u.uid)+'</b> (password baad me Users tab se badal sakte hain).':'Plan renew ho gaya.')+'<br>Nayi expiry: <b>'+SB.fmtD(x.u.expiry)+'</b></p><pre class="sbPre">'+pmEsc(msg)+'</pre><div class="admRow"><button type="button" class="admBtn go" data-sb="wasend">💬 WhatsApp se bhejein</button><button type="button" class="admBtn" data-sb="msgcopy">📋 Copy</button></div>');break}
+  case 'wasend':window.open(SB._wa,'_blank');break;
+  case 'msgcopy':admToast(await SB.copy(SB._msg)?'✓ Copy ho gaya':'Copy nahi hua',0);break;
+  case 'rrej':{const n=prompt('Reject karne ka reason (optional):');if(n===null)return;await SB.tx(async d=>{const r=d.requests.find(x=>x.id===id);if(r&&r.status==='pending'){r.status='rejected';r.note=n.trim();r.done=Date.now()}});admToast('Request reject ho gayi');subsReqTab();break}
+  case 'rdel':if(!confirm('Ye request delete karein?'))return;await SB.tx(async d=>{d.requests=d.requests.filter(x=>x.id!==id)});subsReqTab();break;
+  /* users */
+  case 'uman':SB.openUser(id);break;
+  case 'uadd':{const d=await SB.get();if(!d.plans.length){admToast('Pehle Plans tab me plan banayein',1);return}
+   const PL=d.plans.filter(p=>p.kind==='new');if(!PL.length){admToast('Pehle ek Registration plan banayein',1);return}
+   SB.modal('<h3>➕ Naya User</h3><p class="admHint">Cash / direct payment wale user ko yahin se jodein. ID aur password dono mobile number honge.</p><label>Full Name</label><input type="text" id="nName"><label>Mobile (10 digit)</label><input type="text" id="nMob" inputmode="numeric" maxlength="10"><label>Email (optional)</label><input type="text" id="nMail"><label>Plan</label><select id="nPlan">'+PL.map(p=>'<option value="'+p.id+'">'+pmEsc(SB.plabel(p))+'</option>').join('')+'</select><div class="admRow"><button type="button" class="admBtn go" data-sb="uaddsave">💾 User banayein</button></div>');break}
+  case 'uaddsave':{const n=SB.v('nName'),m=SB.v('nMob'),e=SB.v('nMail'),pid=SB.v('nPlan');
+   if(n.length<2)return admToast('Naam likhein',1);if(!/^[6-9]\d{9}$/.test(m))return admToast('Sahi 10 digit mobile number daalein',1);
+   await SB.tx(async d=>{if(d.users.some(u=>u.uid===m))throw new Error('Ye mobile pehle se registered hai');const p=d.plans.find(x=>x.id===pid);
+    const u={uid:m,ph:SB.hash(m,m),name:n,email:e,mobile:m,created:Date.now(),expiry:SB.addDays(Date.now(),p.days),planName:p.name,price:p.price,blocked:false,devs:[],logins:0,log:[]};SB.log(u,'Admin ne manually banaya (+'+p.days+' din)');d.users.push(u)});
+   SB.closeModal();admToast('✓ User ban gaya');subsUsersTab();break}
+  case 'ext':await SB.mutUser(id,u=>{const n=+b.dataset.n;u.expiry=SB.addDays(n>0?Math.max(u.expiry,Date.now()):u.expiry,n);SB.log(u,'Expiry '+(n>0?'+':'')+n+' din → '+SB.fmtD(u.expiry))},'✓ Expiry badal gayi');break;
+  case 'extc':{const n=parseInt(SB.v('mCustom'),10);if(!n)return admToast('Din likhein (jaise 10 ya -5)',1);
+   await SB.mutUser(id,u=>{u.expiry=SB.addDays(n>0?Math.max(u.expiry,Date.now()):u.expiry,n);SB.log(u,'Expiry '+(n>0?'+':'')+n+' din → '+SB.fmtD(u.expiry))},'✓ Expiry badal gayi');break}
+  case 'exset':{const v=SB.v('mDate');if(!v)return admToast('Date chunein',1);const p=v.split('-').map(Number);
+   await SB.mutUser(id,u=>{u.expiry=SB.eod(new Date(p[0],p[1]-1,p[2]).getTime());SB.log(u,'Expiry set → '+SB.fmtD(u.expiry))},'✓ Expiry set ho gayi');break}
+  case 'pwset':{const v=SB.v('mPw');if(v.length<4)return admToast('Password kam se kam 4 ka rakhein',1);
+   await SB.mutUser(id,u=>{u.ph=SB.hash(u.uid,v);u.devs.forEach(x=>x.tok=null);SB.log(u,'Password badla (user logout)')},'✓ Password badal gaya — user ko dobara login karna hoga');break}
+  case 'pwmob':await SB.mutUser(id,u=>{u.ph=SB.hash(u.uid,u.uid);u.devs.forEach(x=>x.tok=null);SB.log(u,'Password = mobile number')},'✓ Password ab mobile number hai');break;
+  case 'pmall':case 'pmnone':document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=(a==='pmall'));break;
+  case 'pmdef':{const d=await SB.get(),L=Array.isArray(d.settings.defPerms)?d.settings.defPerms:SB.ALLK;document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=L.includes(i.value));break}
+  case 'pmsave':{const L=[...document.querySelectorAll('#sbModal .sbPerm:checked')].map(i=>i.value);await SB.mutUser(id,u=>{u.perms=L;SB.log(u,'Access badla: '+L.filter(k=>SB.SECS.some(x=>x.k===k)).length+' section')},'✓ Access save ho gaya');break}
+  case 'dpsave':{const L=[...document.querySelectorAll('#sbDefPerm .sbPerm:checked')].map(i=>i.value);await SB.tx(async d=>{d.settings.defPerms=L});admToast('✓ Default access save ho gaya');break}
+  case 'maxd':await SB.mutUser(id,u=>{u.maxDev=+b.dataset.n;if(u.devs.length>u.maxDev){u.devs.sort((a,c)=>(c.last||0)-(a.last||0));u.devs=u.devs.slice(0,u.maxDev)}SB.log(u,'Device limit = '+u.maxDev)},'✓ Device limit set ho gayi');break;
+  case 'devdel':await SB.mutUser(id,u=>{u.devs=u.devs.filter(x=>x.id!==b.dataset.v);SB.log(u,'Admin ne ek device hataya')},'✓ Device hata diya');break;
+  case 'devrst':if(!confirm('Device reset karein? User naye device se login kar payega (purana device logout ho jayega).'))return;
+   await SB.mutUser(id,u=>{u.devs=[];SB.log(u,'Admin ne sab device reset kiye')},'✓ Device reset ho gaya');break;
+  case 'lout':await SB.mutUser(id,u=>{u.devs.forEach(x=>x.tok=null);SB.log(u,'Admin ne force logout kiya')},'✓ User logout ho gaya');break;
+  case 'uinfo':{const n=SB.v('mName');if(n.length<2)return admToast('Naam likhein',1);await SB.mutUser(id,u=>{u.name=n;u.email=SB.v('mMail')},'✓ Save ho gaya');break}
+  case 'blk':await SB.mutUser(id,u=>{u.blocked=!u.blocked;if(u.blocked)u.devs.forEach(x=>x.tok=null);SB.log(u,u.blocked?'Admin ne block kiya':'Admin ne unblock kiya')},'✓ Update ho gaya');break;
+  case 'udel':if(!confirm('User permanently delete karein?'))return;await SB.tx(async d=>{d.users=d.users.filter(x=>x.uid!==id)});SB.closeModal();admToast('User delete ho gaya');admRender();break;
+  case 'csv':{const d=await SB.get(),q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"',rows=[['User ID','Name','Email','Plan','Expiry','Status','Device','Last login'].map(q).join(',')];
+   d.users.forEach(u=>rows.push([u.uid,u.name,u.email,u.planName,SB.fmtD(u.expiry),SB.ustat(u),u.devs.map(x=>x.info).join(' + '),SB.fmtDT(u.last)].map(q).join(',')));pmSave(new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv'}),'users.csv');break}
+  /* plans */
+  case 'padd':SB.planForm('',b.dataset.k);break;
+  case 'pedit':SB.planForm(id);break;
+  case 'psave':{const n=SB.v('pName'),pr=parseInt(SB.v('pPrice'),10),dy=parseInt(SB.v('pDays'),10);
+   if(!n)return admToast('Plan ka naam likhein',1);if(!(pr>0))return admToast('Sahi price daalein',1);if(!(dy>0))return admToast('Sahi din daalein',1);
+   await SB.tx(async d=>{let p=d.plans.find(x=>x.id===id);if(!p){p={id:'p'+SB.rid(),qr:null,kind:b.dataset.k==='renew'?'renew':'new'};d.plans.push(p)}
+    Object.assign(p,{name:n,price:pr,days:dy,desc:SB.v('pDesc'),upi:SB.v('pUpi'),active:document.getElementById('pAct').checked});if(SB._pqr!==undefined)p.qr=SB._pqr});
+   SB._pqr=undefined;SB.closeModal();admToast('✓ Plan save ho gaya');subsPlansTab();break}
+  case 'pqrdel':SB._pqr=null;document.getElementById('pQrPrev').innerHTML='<span>QR nahi (Save dabayein)</span>';break;
+  case 'ptog':await SB.tx(async d=>{const p=d.plans.find(x=>x.id===id);if(p)p.active=!p.active});subsPlansTab();break;
+  case 'pdel':if(!confirm('Plan delete karein? (Purani requests / users par asar nahi padega)'))return;await SB.tx(async d=>{d.plans=d.plans.filter(x=>x.id!==id)});subsPlansTab();break;
+  case 'mf':SB.mf=b.dataset.v;subsMsgTab();break;
+  case 'mdone':await SB.tx(async d=>{const m=d.msgs.find(x=>x.id===id);if(m)m.status='done'});subsMsgTab();break;
+  case 'mdel':if(!confirm('Ye message delete karein?'))return;await SB.tx(async d=>{d.msgs=d.msgs.filter(x=>x.id!==id)});subsMsgTab();break;
+  case 'mreply':{const d=await SB.get(),m=d.msgs.find(x=>x.id===id);if(!m)return;SB._mid=id;
+   SB.modal('<h3>💬 Reply — '+pmEsc(m.name||m.mobile)+'</h3><div class="sbPre">'+pmEsc(m.text)+'</div><label>Aapka jawab</label><textarea id="mRep" rows="4">'+pmEsc(m.reply||'')+'</textarea><p class="admHint">Ye jawab user ko app ke Help &amp; Support me dikhega.</p><div class="admRow"><button type="button" class="admBtn go" data-sb="mrsave">💾 Save reply</button><button type="button" class="admBtn" data-sb="mrwa">💬 Save + WhatsApp</button></div>');break}
+  case 'mrsave':case 'mrwa':{const t=document.getElementById('mRep').value.trim();if(!t)return admToast('Jawab likhein',1);let mob='';
+   await SB.tx(async d=>{const m=d.msgs.find(x=>x.id===SB._mid);if(m){m.reply=t;m.repAt=Date.now();m.status='done';mob=m.mobile}});SB.closeModal();admToast('✓ Reply save ho gaya');if(a==='mrwa')window.open(SB.waLink(mob,t),'_blank');subsMsgTab();break}
+  case 'mpapp':{const d0=await SB.get(),m0=d0.msgs.find(x=>x.id===id);if(!m0||!confirm(m0.name+' ('+m0.mobile+') ka password badal dein?\n(Pehle pehchan confirm kar lein)'))return;
+   let mob='';await SB.tx(async d=>{const m=d.msgs.find(x=>x.id===id),u=d.users.find(x=>x.uid===m.mobile);if(!u)throw new Error('User nahi mila');u.ph=m.ph;u.devs.forEach(x=>x.tok=null);SB.log(u,'Password change request approve ('+m.id+')');m.status='approved';m.ph='';mob=u.mobile});
+   admToast('✓ Password badal gaya');subsMsgTab();SB.modal('<h3>✅ Password badal diya</h3><p class="admHint">User ko batayein ki ab naye password se login karein.</p><div class="admRow"><button type="button" class="admBtn go" data-sb="wasend">💬 WhatsApp se batayein</button></div>');SB._wa=SB.waLink(mob,'Aapka password change ho gaya hai. Ab naye password se login karein.');break}
+  case 'mprej':{const n=prompt('Reject karne ka reason (optional):');if(n===null)return;await SB.tx(async d=>{const m=d.msgs.find(x=>x.id===id);if(m){m.status='rejected';m.note=n.trim();m.ph=''}});subsMsgTab();break}
+  /* settings */
+  case 'setsave':{const w=parseInt(SB.v('sWarn'),10);await SB.tx(async d=>{Object.assign(d.settings,{biz:SB.v('sBiz')||'All Print',contact:SB.v('sContact').replace(/[^\d+]/g,''),defMax:+SB.v('sDef')||1,wa:SB.v('sWa').replace(/\D/g,''),mode:SB.v('sMode'),warn:w>=0?w:5,terms:A$('sTerms').value.trim()||SB.DEF_TERMS})});admToast('✓ Settings save ho gayi');break}
+  case 'exp':{const d=await SB.get();pmSave(new Blob([JSON.stringify(d)],{type:'application/json'}),'subscription-backup.json');break}
+  case 'devnew':try{localStorage.setItem('ap_device_id','D'+Date.now().toString(36)+Math.random().toString(36).slice(2,8))}catch(e){}SB._mem=null;admToast('✓ Naya Device ID — ab ye browser "naya device" hai');subsSetTab();break;
+  case 'sreset':if(!confirm('Saare users, requests aur plans delete ho jayenge. Pakka?'))return;await SB.put(SB.norm({seeded:false}));SB.clearSess();admToast('✓ Reset ho gaya');subsSetTab();break;
+ }}catch(e){admToast('Error: '+(e.message||e),1)}};
+
+A$('admBody').addEventListener('click',e=>{const b=e.target.closest('[data-sb]');if(b)SB.act(b)});
+A$('admBody').addEventListener('change',async e=>{const i=e.target;if(i.id!=='sbImp')return;const f=i.files[0];if(!f)return;
+ try{const d=JSON.parse(await f.text());if(!d||!Array.isArray(d.users))throw 0;if(!confirm('Current subscription data replace ho jayega. Import karein?'))return;await SB.put(SB.norm(d));admToast('✓ Import ho gaya');subsSetTab()}catch(x){admToast('Backup file sahi nahi hai',1)}});
+
+/* =====================================================================
+   ADMIN TAB: ✍️ Manual PAN templates (Front / Back)
+   Data: window.apAdminData.manual = [{id,name,side,img,trim}]
+   ===================================================================== */
+function admMpanTab(){const D=window.apAdminData;D.manual=Array.isArray(D.manual)?D.manual:[];const L=D.manual;
+ const row=t=>`<div class="admItem"><div class="admThumbs" style="grid-template-columns:120px 1fr;align-items:center"><div><img src="${t.img}" alt=""></div><div style="display:block;aspect-ratio:auto;background:none"><input type="text" id="mpN_${t.id}" value="${pmEsc(t.name)}"></div></div><div class="admRow"><button type="button" class="admBtn go" data-mp="ren" data-id="${t.id}">Naam save</button><label class="admBtn">Image badlein<input type="file" accept="image/*" hidden data-mp="img" data-id="${t.id}"></label><button type="button" class="admBtn danger" data-mp="del" data-id="${t.id}">🗑 Delete</button></div></div>`;
+ const fr=L.filter(t=>t.side==='front'),bk=L.filter(t=>t.side==='back');
+ A$('admBody').innerHTML=`<div class="admCard"><h3>✍️ Manual PAN – Templates</h3><p class="admHint">Yahan jo templates jodenge wo PAN Card → <b>MANUAL PAN</b> tool me sabhi users ko dikhenge. Pehla Front aur pehla Back template apne-aap lag jata hai; user dropdown se doosra bhi chun sakta hai (★ nishaan = admin template). Jitne chahein utne add karein.</p>
+ <p class="admHint"><b>Template ka size / layout:</b> image <b>1216 × 768</b> (card ke ratio) ki banayein. Tool in jagahon par data likhta hai: Photo (bayein upar), Signature (neeche beech me), QR (daayein), Naam / Pita ka naam / DOB (neeche bayein) aur ID text (beech upar). Safed/khali kinara <i>auto-kaatne</i> ka option neeche hai.</p>
+ <label>Template ka naam</label><input type="text" id="mpNewName" placeholder="Jaise: Manual PAN Front"><label>Kis side ke liye</label><select id="mpNewSide"><option value="front">Front (आगे)</option><option value="back">Back (पीछे)</option></select><label>Template image</label><input type="file" id="mpNewImg" accept="image/*"><label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" id="mpNewTrim" checked> Safed/khali kinara apne-aap kaatein</label><div class="admRow"><button type="button" class="go" id="mpAdd">➕ Add karein</button></div></div>
+ <div class="admCard"><h3>Front templates (${fr.length})</h3>${fr.map(row).join('')||'<p class="admHint">Abhi koi nahi.</p>'}</div>
+ <div class="admCard"><h3>Back templates (${bk.length})</h3>${bk.map(row).join('')||'<p class="admHint">Abhi koi nahi.</p>'}</div>`;
+ A$('mpAdd').onclick=async()=>{const n=A$('mpNewName').value.trim(),f=A$('mpNewImg').files[0];if(!n){admToast('Template ka naam likhein',1);return}if(!f){admToast('Image chunein',1);return}
+  try{D.manual.push({id:admId(),name:n,side:A$('mpNewSide').value,img:await admScale(f,1600),trim:A$('mpNewTrim').checked});await admSave();admToast('✓ Template add ho gaya: '+n);admMpanTab()}catch(e){admToast('Add nahi hua: '+e.message,1)}}}
+async function admMpanAct(el){const D=window.apAdminData,L=D.manual||[],id=el.dataset.id,act=el.dataset.mp;
+ try{if(act==='ren'){const v=A$('mpN_'+id).value.trim();if(!v){admToast('Naam khali nahi ho sakta',1);return}L.find(t=>t.id===id).name=v;await admSave();admToast('✓ Naam save ho gaya')}
+  else if(act==='del'){const t=L.find(x=>x.id===id);if(!confirm('"'+t.name+'" delete karein?'))return;D.manual=L.filter(x=>x.id!==id);await admSave();admToast('Delete ho gaya');admMpanTab()}
+  else if(act==='img'){const f=el.files[0];if(!f)return;L.find(t=>t.id===id).img=await admScale(f,1600);await admSave();admToast('✓ Image badal gayi');admMpanTab()}}catch(e){admToast('Error: '+e.message,1)}}
+A$('admBody').addEventListener('click',e=>{const b=e.target.closest('[data-mp]');if(b&&b.tagName!=='INPUT')admMpanAct(b)});
+A$('admBody').addEventListener('change',e=>{const b=e.target;if(b.matches&&b.matches('input[data-mp="img"]'))admMpanAct(b)});
+
+</script></body></html>
