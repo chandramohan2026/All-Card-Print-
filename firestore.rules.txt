@@ -1,0 +1,146 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function owner() {
+      return request.auth != null
+        && request.auth.uid == 'ofSt3V2PnDbFSVidk0T8aGpWjot2';
+    }
+
+    // Logged-in user ka Firebase Auth email, authmap/{mobile}.email se match hona chahiye
+    function userOk(m) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/authmap/$(m))
+        && request.auth.token.email == get(/databases/$(database)/documents/authmap/$(m)).data.email;
+    }
+
+    // ---------- shared admin templates (pehle se chal raha hai) ----------
+    match /publicConfig/{docId} {
+      allow read: if docId == 'main';
+      allow create, update, delete: if docId == 'main' && owner();
+    }
+
+    // ---------- public: business settings + plans (sirf owner likh sakta hai) ----------
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if owner();
+    }
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if owner();
+    }
+
+    // ---------- mobile -> login email map (sirf ek-ek document padh sakte hain, list nahi) ----------
+    match /authmap/{m} {
+      allow get: if true;
+      allow list: if owner();
+      allow write: if owner();
+    }
+
+    // ---------- users ----------
+    match /users/{m} {
+      allow get: if owner() || userOk(m);
+      allow list: if owner();
+      allow create, delete: if owner();
+      // user sirf apne device/login-log wale fields badal sakta hai (expiry, plan, block, access nahi)
+      allow update: if owner()
+        || (userOk(m)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['devs', 'last', 'logins', 'log'])
+            && request.resource.data.devs is list
+            && request.resource.data.devs.size() <= 10);
+
+      // Support messages + password change requests
+      match /msgs/{id} {
+        allow read: if owner() || userOk(m);
+        allow update, delete: if owner();
+        allow create: if request.resource.data.keys().hasOnly(['id', 'kind', 'name', 'mobile', 'subject', 'text', 'ph', 'verified', 'status', 'at', 'reply', 'repAt'])
+          && request.resource.data.id == id
+          && request.resource.data.mobile == m
+          && request.resource.data.status == 'new'
+          && request.resource.data.at is number
+          && request.resource.data.kind in ['support', 'pwd']
+          && (
+            (request.resource.data.kind == 'support'
+              && request.resource.data.text is string
+              && request.resource.data.text.size() >= 5
+              && request.resource.data.text.size() <= 700)
+            ||
+            (request.resource.data.kind == 'pwd'
+              && exists(/databases/$(database)/documents/authmap/$(m))
+              && request.resource.data.ph is string
+              && request.resource.data.ph.size() == 64
+              && existsAfter(/databases/$(database)/documents/pwdp/$(m)))
+          );
+      }
+    }
+
+    // Admin: saare users ke saare messages ek saath dekhne ke liye
+    match /{path=**}/msgs/{id} {
+      allow read: if owner();
+    }
+
+    // ek user ki ek hi pending password-change request
+    match /pwdp/{m} {
+      allow read, delete: if owner();
+      allow create: if request.resource.data.keys().hasOnly(['msgId', 'at'])
+        && existsAfter(/databases/$(database)/documents/users/$(m)/msgs/$(request.resource.data.msgId));
+    }
+
+    // ---------- payment requests (register / renewal) ----------
+    match /requests/{id} {
+      allow read: if owner();
+      allow update, delete: if owner();
+      allow create: if request.resource.data.keys().hasOnly(['id', 'type', 'name', 'mobile', 'email', 'planId', 'planName', 'days', 'price', 'utr', 'status', 'at', 'hasShot', 'prevExpiry', 'prevPlan'])
+        && request.resource.data.id == id
+        && request.resource.data.status == 'pending'
+        && request.resource.data.type in ['new', 'renew']
+        && request.resource.data.mobile.matches('[6-9][0-9]{9}')
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.utr is string
+        && request.resource.data.utr.size() <= 30
+        && request.resource.data.price == get(/databases/$(database)/documents/plans/$(request.resource.data.planId)).data.price
+        && existsAfter(/databases/$(database)/documents/pending/$(request.resource.data.mobile))
+        && getAfter(/databases/$(database)/documents/pending/$(request.resource.data.mobile)).data.reqId == id;
+    }
+
+    // payment screenshot (alag document, 700KB tak)
+    match /shots/{id} {
+      allow read, update, delete: if owner();
+      allow create: if request.resource.data.keys().hasOnly(['img', 'at'])
+        && request.resource.data.img is string
+        && request.resource.data.img.size() < 700000
+        && existsAfter(/databases/$(database)/documents/requests/$(id));
+    }
+
+    // is mobile par pending request hai (naye register ko roke) — koi bhi check kar sakta hai, bana sirf request ke saath sakta hai
+    match /pending/{m} {
+      allow get: if true;
+      allow list, delete: if owner();
+      allow create: if m.matches('[6-9][0-9]{9}')
+        && request.resource.data.keys().hasOnly(['reqId', 'mobile', 'at', 'price'])
+        && request.resource.data.mobile == m
+        && getAfter(/databases/$(database)/documents/requests/$(request.resource.data.reqId)).data.mobile == m;
+    }
+
+    // UTR dobara use na ho
+    match /utrs/{u} {
+      allow read, delete: if owner();
+      allow create: if request.resource.data.keys().hasOnly(['reqId', 'at'])
+        && getAfter(/databases/$(database)/documents/requests/$(request.resource.data.reqId)).data.utr.lower() == u;
+    }
+
+    // guest "Payment Status" ke liye (sirf admin likhta hai)
+    match /status/{m} {
+      allow get: if true;
+      allow list: if owner();
+      allow write: if owner();
+    }
+
+    // baaki sab band
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

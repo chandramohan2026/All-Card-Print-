@@ -1,0 +1,46 @@
+FIREBASE SETUP (FREE / Spark plan) — sirf ek baar karna hai
+============================================================
+Ab register, login, plans, payment requests, support, password-change, users, device-lock — sab Firebase Firestore me
+save hota hai. Isliye kisi bhi mobile / browser me website kholne par wahi data dikhta hai.
+Koi paid plan, Cloud Functions ya Firebase Storage use nahi hota (screenshot / QR chhoti image bana kar Firestore me hi save hote hain).
+
+STEP 1 — Authentication (Firebase Console > project: all-print-card)
+  a) Build > Authentication > Sign-in method > Email/Password = ENABLED (admin ke liye pehle se hai).
+  b) Authentication > Settings > User actions > "Enable create (sign-up)" = ON.
+     (Admin panel user approve karte waqt user ka login account isi se banata hai.)
+  c) Authentication > Settings > Authorized domains me apne dono GitHub Pages domain add kar dein
+     (jaise chandramohan2026.github.io) — agar pehle se nahi hain.
+
+STEP 2 — Firestore Rules (sabse zaroori)
+  Build > Firestore Database > Rules > purana sab hatakar "firestore.rules.txt" ka poora text paste karein > PUBLISH.
+  (Is rules file me publicConfig/main wale templates ke purane rule bhi shamil hain, owner UID wahi hai.)
+
+STEP 3 — GitHub par upload
+  - All-Card repo: is ZIP ki saari files (index.html, service-worker.js, manifest.json, assets/ ...) upload karke replace karein.
+  - All-Print-Admin repo: index.html upload karke replace karein.
+  Phones par purana cache hat-ne ke liye 1-2 baar page refresh karein (service worker v3 hai).
+
+STEP 4 — Admin Panel me pehli baar
+  - Admin Panel kholein, owner email/password se login karein.
+  - Agar is browser me purana local subscription data hoga to poochega "Firebase par upload karein?" — OK dabayein.
+    (Baad me bhi Settings > Firebase > "Purana local data -> Firebase" se kar sakte hain.)
+  - Plans tab me Registration / Renewal plan + QR upload karein (ye ab sabhi users ko dikhega).
+  - Settings me WhatsApp / contact / terms bharein.
+
+STEP 5 — Test (2 mobile se)
+  1. Mobile-1 par Register karein -> Admin Panel > Requests me turant dikhegi.
+  2. Admin Approve kare -> user ID = mobile, password = mobile number.
+  3. Mobile-2 par us ID se login -> device limit rule lagega (Settings me badal sakte hain).
+  4. Help & Support / Password Change request bhejein -> Admin > Messages me dikhegi, reply user ko dikhega.
+
+FREE PLAN LIMITS (Spark): roz 50,000 reads / 20,000 writes. App live listeners use karta hai (har 15 sec ka polling nahi),
+isliye chhote/medium business ke liye kaafi hai. Firebase Console > Usage me dekhte rahein.
+
+IMPORTANT NOTES
+  - Password Firestore me save nahi hota. Firebase Authentication hidden email  <mobile>@allprint-users.example.com  par
+    password ka hash rakhta hai. Naya user: password = uska mobile number (pehle jaisa); admin Users > Manage se badal sakta hai.
+  - Admin password badalta/reset karta hai to user ka naya Auth account bante hi purane devices logout ho jate hain.
+  - Pehle jo data kisi user ke phone ke local storage me tha wo us phone tak hi tha — wo apne-aap Firebase me nahi aa sakta.
+    Naye registrations ab se Firebase me jayenge.
+  - Firestore Rules ko maine online emulator se test nahi kiya (is environment me Google se connection nahi tha). Publish karte waqt
+    Console ka syntax check chalega; agar koi error dikhe to screenshot bhej dein.
